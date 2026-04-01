@@ -10,7 +10,7 @@ This project uses **1.5 million pitches of Statcast data** to diagnose exactly w
 
 **The discipline was real — MLB broke it.**
 
-Both prospects had elite plate discipline in the minors. Volpe's chase rate was 15%. Dominguez's was 18%. These are star-caliber numbers.
+Both prospects had elite plate discipline in the minors. FanGraphs data confirms it: Volpe posted a 15.2% BB rate and sub-20% K rate across A/A+ in 2021 (.449 wOBA, 171 wRC+). Dominguez walked at a 15.3% clip in AA/AAA in 2023 with a 17.3% K rate. These are star-caliber approach numbers by any standard.
 
 Against MLB pitching, both collapsed:
 
@@ -21,6 +21,8 @@ Against MLB pitching, both collapsed:
 | Chase rate (offspeed) | 29.4% | 39.2% | 20.0% | 39.5% |
 
 The issue isn't talent or discipline — it's **calibration**. Their pitch recognition was trained on minor league stuff. MLB breaking balls break later, tunnel better, and are sequenced by data-driven staffs who already know the weaknesses. The Yankees let their prospects calibrate on the job, in front of 45,000 people, with their confidence on the line.
+
+Compare to Henderson: 30.9% K rate in A-ball → 23.1% in AA with a 19.7% BB rate and .412 wOBA (152 wRC+). He solved pitch recognition *before* his call-up. Volpe's K% plateaued at ~20% across levels — the traditional stats looked great (.423 OBP) while hiding the pitch recognition ceiling underneath.
 
 ![MiLB vs MLB](outputs/figures/milb_vs_mlb.png)
 
@@ -46,13 +48,13 @@ Overall whiff rate (d = -0.08) and zone contact rate (d = -0.02) show almost no 
 
 ## How the Yankees Could Have Prevented This
 
-1. **Statcast-based promotion gates** — Don't promote on slash lines. Gate on the metrics that actually predict translation: whiff rate vs 96+ < 22% (6/7 stars pass, 1/3 disappointing pass), breaking ball chase rate < 35% (5/7 stars pass). Traditional stats lie in the minors.
+1. **Statcast-based promotion gates** — Don't promote on slash lines. Gate on the metrics that actually predict translation: whiff rate vs 96+ < 22%, breaking ball chase rate < 35%, offspeed chase rate < 40%. Backtested against the 19-prospect cohort, stars pass 60%+ of gates while disappointing/busts pass < 40%. Traditional stats lie in the minors.
 
-2. **Simulated MLB pitch mixes in development** — Feed prospects the pitch mix they'll actually see. Dominguez should have been facing 18-20% offspeed in AAA, not 13%.
+2. **Simulated MLB pitch mixes in development** — Feed prospects the pitch mix they'll actually see. Dominguez sees 18.8% offspeed in the MLB (vs 13.0% league average) — pitchers already know his weakness. He should have been facing that mix in AAA.
 
-3. **Real-time in-season monitoring** — Volpe's breaking ball chase rate going from 20% to 49% in two months is an alarm. A rolling monitoring dashboard with alert thresholds would have triggered coaching intervention within weeks, not months.
+3. **Real-time in-season monitoring** — Volpe's breaking ball chase rate going from 20% to 49% in two months is an alarm. A rolling 75-pitch monitoring dashboard with alert thresholds at 40% would have triggered coaching intervention within weeks, not months.
 
-4. **Pre-promotion calibration** — MLB-quality pitch machines, VR pitch recognition training, and AAA coaches instructed to throw MLB-style sequences against top prospects. Bridge the quality gap before the call-up.
+4. **Pre-promotion calibration** — MLB-quality pitch machines, VR pitch recognition training, and AAA coaches instructed to throw MLB-style sequences against top prospects. Henderson's K% dropped 8 points between A-ball and AA — he was being challenged and adapting. Volpe's K% flatlined at ~20% across levels, suggesting he wasn't being pushed.
 
 ## It's Not Just Volpe and Dominguez — It's the System
 
@@ -82,11 +84,12 @@ Meanwhile, the Orioles (Henderson), Diamondbacks (Carroll), Reds (De La Cruz), a
 
 ## Data
 
-All data sourced from public [Statcast](https://baseballsavant.mlb.com) via [pybaseball](https://github.com/jldbc/pybaseball) and [FanGraphs](https://fangraphs.com).
+All data sourced from public [Statcast](https://baseballsavant.mlb.com) via [pybaseball](https://github.com/jldbc/pybaseball) and [FanGraphs API](https://fangraphs.com).
 
 - **1,503,994 pitches** across 2023-2024 MLB seasons
 - **343 pre-debut pitches** (Spring Training / select MiLB Statcast)
 - **19 prospect profiles** with complete Statcast data
+- **FanGraphs MiLB stats** (BB%, K%, wOBA, wRC+ by level/season) for key prospects via FanGraphs API
 
 ## Setup
 
