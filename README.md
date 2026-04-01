@@ -46,7 +46,7 @@ Overall whiff rate (d = -0.08) and zone contact rate (d = -0.02) show almost no 
 
 ## How the Yankees Could Have Prevented This
 
-1. **Statcast-based promotion gates** — Don't promote on slash lines. Gate on the metrics that actually predict translation: breaking ball chase rate < 35%, whiff rate vs 95+ < 22%, zone contact > 83%. Traditional stats lie in the minors.
+1. **Statcast-based promotion gates** — Don't promote on slash lines. Gate on the metrics that actually predict translation: whiff rate vs 96+ < 22% (6/7 stars pass, 1/3 disappointing pass), breaking ball chase rate < 35% (5/7 stars pass). Traditional stats lie in the minors.
 
 2. **Simulated MLB pitch mixes in development** — Feed prospects the pitch mix they'll actually see. Dominguez should have been facing 18-20% offspeed in AAA, not 13%.
 
