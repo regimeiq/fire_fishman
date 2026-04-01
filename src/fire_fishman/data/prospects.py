@@ -71,30 +71,61 @@ def get_yankees_prospects() -> pd.DataFrame:
     return df[df["name"].isin(["Anthony Volpe", "Jasson Dominguez"])]
 
 
-# MiLB season-level stats (from FanGraphs/Baseball Reference)
-# Not available via pybaseball API — manually sourced from public pages.
+# MiLB season-level stats sourced from FanGraphs API (/api/players/stats)
+# and Baseball Reference. Includes BB%, K%, wOBA, wRC+ by level/season.
 MILB_STATS = {
     "Anthony Volpe": {
-        2021: {"level": "A/A+", "pa": 514, "avg": .294, "obp": .423, "slg": .604,
-               "hr": 27, "sb": 33, "bb_pct": .148, "k_pct": .253,
+        2021: {"level": "A/A+", "pa": 513, "avg": .294, "obp": .423, "slg": .604,
+               "bb_pct": .152, "k_pct": .197, "woba": .449, "wrc_plus": 170.8,
                "note": "BA Best Strike-Zone Discipline in Yankees system"},
-        2022: {"level": "AA/AAA", "pa": 576, "avg": .249, "obp": .341, "slg": .431,
-               "hr": 21, "sb": 50, "bb_pct": .113, "k_pct": .248,
-               "note": "65 BB in 132 games"},
+        2022: {"level": "AA/AAA", "pa": 596, "avg": .249, "obp": .342, "slg": .460,
+               "bb_pct": .109, "k_pct": .198, "woba": .352, "wrc_plus": 120.4,
+               "note": "65 BB in 132 games; K% held under 20% across levels"},
     },
     "Jasson Dominguez": {
-        2022: {"level": "A+", "pa": 330, "avg": .265, "obp": .351, "slg": .453,
-               "hr": 9, "sb": 19, "k_pct": .230,
-               "note": "75 games with Tampa"},
-        2023: {"level": "AA/AAA", "pa": 194, "avg": .372, "obp": .442, "slg": .557,
-               "hr": 5, "sb": 7, "k_pct": .173,
-               "note": "BA Best Strike-Zone Discipline; 44 games before call-up"},
+        2022: {"level": "A/A+", "pa": 530, "avg": .273, "obp": .375, "slg": .461,
+               "bb_pct": .136, "k_pct": .242, "woba": .383, "wrc_plus": 135.5,
+               "note": "508 PA across A and A+"},
+        2023: {"level": "AA/AAA", "pa": 544, "avg": .265, "obp": .377, "slg": .425,
+               "bb_pct": .153, "k_pct": .244, "woba": .365, "wrc_plus": 125.6,
+               "note": "BA Best Strike-Zone Discipline; 15.3% BB rate elite"},
+        2024: {"level": "AA/AAA", "pa": 250, "avg": .314, "obp": .376, "slg": .504,
+               "bb_pct": .088, "k_pct": .200, "woba": .392, "wrc_plus": 135.7,
+               "note": "Rehab + AAA; K% dropped to 20% but BB% cratered"},
+    },
+    # Comparison prospects (FanGraphs API data)
+    "Gunnar Henderson": {
+        2021: {"level": "A/A+", "pa": 463, "avg": .258, "obp": .350, "slg": .476,
+               "bb_pct": .121, "k_pct": .309, "woba": .364, "wrc_plus": 121.3,
+               "note": "High K% but elite power for age-20 season"},
+        2022: {"level": "AA/AAA", "pa": 503, "avg": .297, "obp": .416, "slg": .531,
+               "bb_pct": .157, "k_pct": .231, "woba": .412, "wrc_plus": 152.0,
+               "note": "Massive AA breakout: 19.7% BB rate, K% dropped 8 points"},
+    },
+    "Corbin Carroll": {
+        2022: {"level": "AA/AAA", "pa": 442, "avg": .307, "obp": .425, "slg": .610,
+               "bb_pct": .152, "k_pct": .242, "woba": .442, "wrc_plus": 144.3,
+               "note": "Elite walk rate + power across AA and AAA"},
+    },
+    "Bobby Witt Jr.": {
+        2021: {"level": "AA/AAA", "pa": 564, "avg": .290, "obp": .361, "slg": .575,
+               "bb_pct": .090, "k_pct": .232, "woba": .399, "wrc_plus": 140.5,
+               "note": "Low BB% but elite bat-to-ball; 23.2% K rate"},
     },
     # Additional Yankees system products for systemic comparison
     "Oswald Peraza": {
         2022: {"level": "AAA", "pa": 480, "avg": .259, "obp": .316, "slg": .399,
-               "hr": 12, "sb": 33, "k_pct": .209},
+               "bb_pct": .081, "k_pct": .209},
     },
+}
+
+# FanGraphs player IDs for API access
+FANGRAPHS_IDS = {
+    "Anthony Volpe": 27647,
+    "Jasson Dominguez": 28080,
+    "Gunnar Henderson": 26289,
+    "Corbin Carroll": 25878,
+    "Bobby Witt Jr.": 25764,
 }
 
 
