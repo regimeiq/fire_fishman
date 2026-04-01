@@ -38,6 +38,7 @@ Jasson Dominguez has the **largest translation gap** in the cohort — elite too
 | [02 — Pitch Diagnostics](notebooks/02_pitch_diagnostics.ipynb) | Where do Volpe/Dominguez break? | Chase rate, whiff splits by pitch type, velocity tier, count |
 | [03 — Prediction Model](notebooks/03_prediction_model.ipynb) | Which metrics predict success? | Effect size analysis (Cohen's d) across prospect outcomes |
 | [04 — Prescriptions](notebooks/04_prescriptions.ipynb) | What should they work on? | Gap-to-benchmark analysis, nearest-neighbor comps |
+| [05 — Prevention](notebooks/05_prevention_analysis.ipynb) | How could the Yankees have prevented this? | Monthly trend analysis, pitch mix exploitation, readiness gates |
 
 ## Development Prescriptions
 
@@ -80,6 +81,16 @@ jupyter notebook notebooks/
 - **scikit-learn + XGBoost** — feature importance analysis
 - **matplotlib + seaborn** — visualization
 - **Cohen's d effect sizes** — statistical comparison (honest about small sample)
+
+## How the Yankees Could Have Prevented This
+
+**Volpe's repeating collapse:** His breaking ball chase rate starts at ~20% each April and spikes to 42-49% by mid-season — in both 2023 and 2024. Henderson (his closest comp) stays flat all year. A rolling monitoring dashboard would have flagged this within weeks.
+
+**Dominguez is already exploited:** He sees 18.8% offspeed pitches vs. 13.0% league average. The scouting report is in after just ~400 PA. The Yankees needed to stress-test this vulnerability in AAA before promotion.
+
+**Proposed framework:** Statcast-based promotion gates (chase rate on breaking < 35%, whiff rate vs 95+ < 22%) instead of traditional slash lines, plus real-time in-season monitoring with alert thresholds. See [Notebook 05](notebooks/05_prevention_analysis.ipynb) for the full analysis.
+
+![Volpe vs Henderson](outputs/figures/volpe_vs_henderson.png)
 
 ## Limitations & Future Work
 
