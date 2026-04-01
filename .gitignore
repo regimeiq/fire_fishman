@@ -19,5 +19,6 @@ venv/
 # IDE
 .vscode/
 .idea/
-fire_fishman
+# Nested repo artifact from GitHub Desktop
+/fire_fishman/
 anaconda_projects/
