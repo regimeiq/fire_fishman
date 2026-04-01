@@ -4,45 +4,69 @@
 
 Top prospects like Anthony Volpe and Jasson Dominguez arrive with elite physical tools — bat speed, exit velocity, barrel rate — yet struggle at the MLB level. The scouting grades are there. The Statcast numbers say the raw ability is real. So why don't the results follow?
 
-This project models the **tools-to-production translation gap**: the disconnect between what a prospect *can* do physically and what they *actually* produce. We use pitch-level Statcast data to diagnose *where* elite prospects break down against MLB pitching and build a predictive model to identify which early-career signals separate future stars from busts.
+This project models the **tools-to-production translation gap** using 1.5M pitches of Statcast data across 19 recent top-100 prospects (2019-2024 debuts). We diagnose exactly where elite prospects break down against MLB pitching and produce actionable development prescriptions.
 
-## Key Questions
+## Key Findings
 
-1. **Who has the biggest translation gap?** Among recent top-100 prospects, who has elite tools but poor results — and vice versa?
-2. **Where do they break?** Is it chase rate? Breaking ball whiffs? Velocity vulnerability? Count-specific collapse?
-3. **Can we predict it?** Using pitch-level data from a prospect's first ~200 PA, can we predict whether they'll figure it out?
-4. **What's the prescription?** For each underperformer, what specific development changes would the model recommend?
+### The three metrics that most separate stars from busts:
+
+| Metric | Stars | Busts | Effect Size |
+|--------|-------|-------|-------------|
+| **Whiff rate vs 96+ mph** | 18.6% | 23.8% | d = -0.67 (medium) |
+| **Chase rate on breaking balls** | 33.2% | 36.0% | d = -0.64 (medium) |
+| **Chase rate on offspeed** | 38.2% | 42.1% | d = -0.75 (medium) |
+
+It's not overall whiff rate or zone contact that separates outcomes — it's **pitch-type-specific discipline**, especially against elite velocity and breaking stuff outside the zone.
+
+### Volpe vs. Dominguez: Different Problems
+
+**Anthony Volpe** is actually close to star benchmarks on most metrics. His biggest gap is **whiff rate against 96+ mph fastballs** (22.3% vs 18.6% star avg). His plate discipline is fine — he just can't catch up to elite velo. Closest successful comp: **Gunnar Henderson**.
+
+**Jasson Dominguez** has a more fundamental issue: **chase rate on breaking balls** (41.3% vs 33.2% star avg) and **whiff rate vs 96+** (25.0% vs 18.6%). He's swinging at breaking stuff out of the zone at a rate 8 percentage points above the star average. Closest successful comp: **Corbin Carroll**.
+
+### The Translation Gap
+
+![Translation Gap](outputs/figures/translation_gap.png)
+
+Jasson Dominguez has the **largest translation gap** in the cohort — elite tools (90.6 mph avg exit velo, top-third hard-hit rate) but a wOBA of just .285. Julio Rodriguez is the second-largest gap, showing that even stars can have tools exceeding results in a down year.
 
 ## Analysis Modules
 
 | Notebook | Question | Method |
 |----------|----------|--------|
-| [01 — Translation Gap](notebooks/01_translation_gap.ipynb) | Who converts tools into production? | Statcast tools score vs. wOBA, scatter analysis |
-| [02 — Pitch Diagnostics](notebooks/02_pitch_diagnostics.ipynb) | Where do Volpe/Dominguez break? | Chase rate, whiff splits by pitch type/velo/count |
-| [03 — Prediction Model](notebooks/03_prediction_model.ipynb) | Which metrics predict success? | XGBoost feature importance + Bayesian logistic regression |
-| [04 — Prescriptions](notebooks/04_prescriptions.ipynb) | What should they work on? | Sensitivity analysis, comparable prospect matching |
+| [01 — Translation Gap](notebooks/01_translation_gap.ipynb) | Who converts tools into production? | Tools composite z-score vs. wOBA z-score |
+| [02 — Pitch Diagnostics](notebooks/02_pitch_diagnostics.ipynb) | Where do Volpe/Dominguez break? | Chase rate, whiff splits by pitch type, velocity tier, count |
+| [03 — Prediction Model](notebooks/03_prediction_model.ipynb) | Which metrics predict success? | Effect size analysis (Cohen's d) across prospect outcomes |
+| [04 — Prescriptions](notebooks/04_prescriptions.ipynb) | What should they work on? | Gap-to-benchmark analysis, nearest-neighbor comps |
 
-## Selected Findings
+## Development Prescriptions
 
-*Run the notebooks to populate — key figures are saved to `outputs/figures/`.*
+### Anthony Volpe
+1. **Reduce whiff rate vs 96+ mph**: 22.3% → 18.6% (timing adjustment against elite fastballs)
+2. **Reduce whiff rate on fastballs overall**: 19.1% → 17.3%
+3. Comp: Henderson, Witt Jr. — both handle elite velo better despite similar overall profiles
+
+### Jasson Dominguez
+1. **Reduce chase rate on breaking balls**: 41.3% → 33.2% (biggest single gap in the cohort)
+2. **Reduce whiff rate vs 96+ mph**: 25.0% → 18.6%
+3. Comp: Carroll, Jung — similar tools, better breaking ball discipline
 
 ## Data
 
-All data sourced from public Statcast (via [pybaseball](https://github.com/jldbc/pybaseball)) and FanGraphs. No proprietary data used.
+All data sourced from public [Statcast](https://baseballsavant.mlb.com) via [pybaseball](https://github.com/jldbc/pybaseball) and [FanGraphs](https://fangraphs.com). No proprietary data.
 
-- Pitch-level Statcast data (2023-2024): ~1.4M pitches
-- Season-level batting stats from FanGraphs
-- Prospect cohort: ~25 recent top-100 prospects who debuted 2019-2024
+- **1,503,994 pitches** (2023-2024 MLB seasons)
+- **1,068 player-seasons** of batting stats
+- **19 prospect profiles** with complete Statcast data (4 dropped due to insufficient MLB PA)
 
 ## Setup
 
 ```bash
-# Clone and install
-git clone https://github.com/YOUR_USERNAME/fire_fishman.git
+git clone https://github.com/regimeiq/fire_fishman.git
 cd fire_fishman
-uv sync  # or: pip install -e .
+pip install -e .
 
-# Pull data (takes ~5 min per season on first run, then cached)
+# Pull data (~5 min per season on first run, then cached as parquet)
 python -c "from fire_fishman.data.statcast import get_statcast_pitches; get_statcast_pitches(2023); get_statcast_pitches(2024)"
 
 # Run notebooks
@@ -51,25 +75,18 @@ jupyter notebook notebooks/
 
 ## Tech Stack
 
-- **pybaseball** — Statcast + FanGraphs data access
+- **pybaseball** — Statcast + FanGraphs data
 - **pandas** — data wrangling
-- **XGBoost + scikit-learn** — feature importance
-- **PyMC + Bambi** — Bayesian modeling with honest uncertainty
-- **ArviZ** — posterior diagnostics
+- **scikit-learn + XGBoost** — feature importance analysis
 - **matplotlib + seaborn** — visualization
+- **Cohen's d effect sizes** — statistical comparison (honest about small sample)
 
-## Project Structure
+## Limitations & Future Work
 
-```
-fire_fishman/
-├── src/fire_fishman/
-│   ├── data/          # Statcast fetching, prospect lists, caching
-│   └── features/      # Tools score, pitch-level metrics, translation gap
-├── notebooks/         # Analysis modules (01-04)
-├── outputs/figures/   # Publication-quality plots
-└── pyproject.toml
-```
+- **Small sample (n=19)**: Not enough for robust ML — we use effect sizes and direct comparisons instead of pretending a classifier works here. Bayesian modeling with informative priors is the natural next step as more prospects debut.
+- **No MiLB Statcast**: Minor league Statcast data would allow pre-debut prediction. Currently only analyzing post-call-up data.
+- **Temporal dynamics**: We aggregate across seasons. Tracking metric changes *within* a prospect's first year could identify who's adjusting vs. who's stuck.
 
 ## Why This Matters
 
-Every front office is trying to answer this question. The difference between a prospect who converts and one who doesn't is worth tens of millions of dollars in roster decisions, trade value, and development investment. Physical tools are necessary but not sufficient — the translation gap is where the alpha is.
+The difference between a prospect who converts and one who doesn't is worth tens of millions in roster decisions, trade value, and development investment. Physical tools are necessary but not sufficient — the translation gap is driven by pitch-type-specific adaptability, and that's coachable.
