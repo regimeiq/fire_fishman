@@ -54,6 +54,20 @@ Overall whiff rate (d = -0.08) and zone contact rate (d = -0.02) show almost no 
 
 4. **Pre-promotion calibration** — MLB-quality pitch machines, VR pitch recognition training, and AAA coaches instructed to throw MLB-style sequences against top prospects. Bridge the quality gap before the call-up.
 
+## It's Not Just Volpe and Dominguez — It's the System
+
+This isn't two isolated cases. The Yankees system has repeatedly produced hitters who win minor league discipline awards and then collapse at the MLB level:
+
+| Player | MiLB Discipline | MLB Result |
+|--------|----------------|------------|
+| **Volpe** | "Best Strike-Zone Discipline" (BA), .423 OBP | Chase rate doubled, seasonal collapse pattern |
+| **Dominguez** | "Best Strike-Zone Discipline" (BA), 17.3% K rate | Chase rate doubled, breaking ball chase 41% |
+| **Peraza** | Solid AAA numbers | 35% breaking ball chase, couldn't stick |
+
+The one exception: **Austin Wells** (26.5% chase, 24.6% breaking ball chase). Notably a catcher — he may benefit from seeing pitching from behind the plate.
+
+Meanwhile, the Orioles (Henderson), Diamondbacks (Carroll), Reds (De La Cruz), and Royals (Witt Jr.) consistently translate minor league discipline to the majors. The Yankees have a **development pipeline problem**, not a scouting problem.
+
 ## Analysis Modules
 
 | Notebook | Question |
@@ -64,6 +78,7 @@ Overall whiff rate (d = -0.08) and zone contact rate (d = -0.02) show almost no 
 | [04 — Prescriptions](notebooks/04_prescriptions.ipynb) | What specific changes would improve their outlook? |
 | [05 — Prevention](notebooks/05_prevention_analysis.ipynb) | Monthly trends, pitch mix exploitation, readiness gates |
 | [06 — MiLB vs MLB](notebooks/06_milb_vs_mlb.ipynb) | The discipline was real — MLB broke it |
+| [07 — Systemic Analysis](notebooks/07_yankees_systemic.ipynb) | Why this keeps happening to the Yankees |
 
 ## Data
 
