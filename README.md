@@ -140,10 +140,10 @@ The teams that beat the Yankees in October all excelled at exactly what Fishman'
 
 - **2018**: Red Sox (Def +38.6) beat Yankees (Def -10.6) in ALDS
 - **2019**: Astros (Def +34.8) beat Yankees (Def -28.0) in ALCS
-- **2022**: Astros (Def +35.2) swept Yankees (Def +57.7) in ALCS
-- **2024**: Dodgers beat Yankees in WS 4-1
+- **2022**: Astros swept Yankees in ALCS despite NYY having better Def (+57.7 vs +35.2) and Dawg (#3 vs #15) — but the Yankees' Hustle was -0.98. They couldn't manufacture runs when Houston's pitching shut down the long ball.
+- **2024**: Dodgers (Dawg #3) beat Yankees (Dawg #25) in WS 4-1
 
-You can't out-homer elite pitchers for 7 games. When the HRs stop, you need other ways to win — speed, defense, lineup diversity, clutch hitting. The Fishman Yankees had none of it. Only Stanton consistently shows up in October.
+You can't out-homer elite pitchers for 7 games. When the HRs stop, you need other ways to win — speed, defense, lineup diversity, clutch hitting. Even in 2022, the Yankees' best Dawg year, the missing Hustle component was the difference. Only Stanton consistently shows up in October.
 
 ![Defense & Dawg](outputs/figures/defense_and_dawg.png)
 
