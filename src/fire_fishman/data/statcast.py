@@ -67,6 +67,26 @@ def get_statcast_batter(player_id: int, start_dt: str, end_dt: str) -> pd.DataFr
     return statcast_batter(start_dt, end_dt, player_id)
 
 
+def get_team_batting_stats(season: int, force: bool = False) -> pd.DataFrame:
+    """Fetch team-level batting stats from FanGraphs.
+
+    Includes baserunning (BsR, SB, CS, UBR, wSB, Spd),
+    batted ball direction (Pull%, Cent%, Oppo%), and standard offense.
+    """
+    cache_path = CACHE_DIR / f"team_batting_{season}.parquet"
+
+    if cache_path.exists() and not force:
+        return pd.read_parquet(cache_path)
+
+    from pybaseball import team_batting
+
+    print(f"Pulling FanGraphs team batting stats for {season}...")
+    df = team_batting(season)
+    df.to_parquet(cache_path, index=False)
+    print(f"Cached {len(df)} teams to {cache_path}")
+    return df
+
+
 def get_player_id(name: str) -> int:
     """Look up a player's MLBAM ID by name."""
     from pybaseball import playerid_lookup
