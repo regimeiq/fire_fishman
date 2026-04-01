@@ -1,64 +1,77 @@
 # fire_fishman 🐟🔥
 
-## Why Do Elite MLB Prospects Fail?
+## A Case Study in Failed Prospect Development
 
-Top prospects like Anthony Volpe and Jasson Dominguez arrive with elite physical tools — bat speed, exit velocity, barrel rate — yet struggle at the MLB level. The scouting grades are there. The Statcast numbers say the raw ability is real. So why don't the results follow?
+Anthony Volpe and Jasson Dominguez were the Yankees' two highest-profile prospects in a generation. Both had elite physical tools. Both had strong minor league track records. Both are struggling at the MLB level.
 
-This project models the **tools-to-production translation gap** using 1.5M pitches of Statcast data across 19 recent top-100 prospects (2019-2024 debuts). We diagnose exactly where elite prospects break down against MLB pitching and produce actionable development prescriptions.
+This project uses **1.5 million pitches of Statcast data** to diagnose exactly what went wrong, when it went wrong, and how the Yankees' analytics and development pipeline could have prevented it.
 
-## Key Findings
+## The Central Finding
 
-### The three metrics that most separate stars from busts:
+**The discipline was real — MLB broke it.**
+
+Both prospects had elite plate discipline in the minors. Volpe's chase rate was 15%. Dominguez's was 18%. These are star-caliber numbers.
+
+Against MLB pitching, both collapsed:
+
+| Metric | Volpe MiLB | Volpe MLB | Dominguez MiLB | Dominguez MLB |
+|--------|-----------|-----------|----------------|---------------|
+| Chase rate | 15.0% | 30.6% | 17.8% | 31.1% |
+| Chase rate (breaking) | 16.7% | 33.0% | 27.3% | 41.3% |
+| Chase rate (offspeed) | 29.4% | 39.2% | 20.0% | 39.5% |
+
+The issue isn't talent or discipline — it's **calibration**. Their pitch recognition was trained on minor league stuff. MLB breaking balls break later, tunnel better, and are sequenced by data-driven staffs who already know the weaknesses. The Yankees let their prospects calibrate on the job, in front of 45,000 people, with their confidence on the line.
+
+![MiLB vs MLB](outputs/figures/milb_vs_mlb.png)
+
+## What Separates Stars from Busts?
+
+We tracked 19 recent top-100 prospects and found the three metrics with the largest effect sizes between stars and busts:
 
 | Metric | Stars | Busts | Effect Size |
 |--------|-------|-------|-------------|
-| **Whiff rate vs 96+ mph** | 18.6% | 23.8% | d = -0.67 (medium) |
-| **Chase rate on breaking balls** | 33.2% | 36.0% | d = -0.64 (medium) |
-| **Chase rate on offspeed** | 38.2% | 42.1% | d = -0.75 (medium) |
+| Chase rate on offspeed | 38.2% | 42.1% | d = -0.75 |
+| Whiff rate vs 96+ mph | 18.6% | 23.8% | d = -0.67 |
+| Chase rate on breaking balls | 33.2% | 36.0% | d = -0.64 |
 
-It's not overall whiff rate or zone contact that separates outcomes — it's **pitch-type-specific discipline**, especially against elite velocity and breaking stuff outside the zone.
+Overall whiff rate (d = -0.08) and zone contact rate (d = -0.02) show almost no separation. **The aggregate metrics hide the signal — you have to look at pitch-type-specific behavior.**
 
-### Volpe vs. Dominguez: Different Problems
+## Different Problems, Same Pipeline Failure
 
-**Anthony Volpe** is actually close to star benchmarks on most metrics. His biggest gap is **whiff rate against 96+ mph fastballs** (22.3% vs 18.6% star avg). His plate discipline is fine — he just can't catch up to elite velo. Closest successful comp: **Gunnar Henderson**.
+**Volpe** is actually close to star benchmarks on discipline. His biggest issue is **whiff rate against 96+ mph** (22.3% vs 18.6% star avg). He also has a **repeating seasonal collapse** — breaking ball chase rate starts at ~20% each April and spikes to 42-49% by mid-season, in both 2023 and 2024. Henderson (his closest comp) stays flat.
 
-**Jasson Dominguez** has a more fundamental issue: **chase rate on breaking balls** (41.3% vs 33.2% star avg) and **whiff rate vs 96+** (25.0% vs 18.6%). He's swinging at breaking stuff out of the zone at a rate 8 percentage points above the star average. Closest successful comp: **Corbin Carroll**.
+**Dominguez** has a more fundamental recognition problem. **Chase rate on breaking balls: 41.3%** — 8 percentage points above star average and the largest gap in the entire cohort. The league already knows: he sees **18.8% offspeed** vs 13.0% league average. The scouting report is in after just ~400 PA.
 
-### The Translation Gap
+![Volpe vs Henderson](outputs/figures/volpe_vs_henderson.png)
 
-![Translation Gap](outputs/figures/translation_gap.png)
+## How the Yankees Could Have Prevented This
 
-Jasson Dominguez has the **largest translation gap** in the cohort — elite tools (90.6 mph avg exit velo, top-third hard-hit rate) but a wOBA of just .285. Julio Rodriguez is the second-largest gap, showing that even stars can have tools exceeding results in a down year.
+1. **Statcast-based promotion gates** — Don't promote on slash lines. Gate on the metrics that actually predict translation: breaking ball chase rate < 35%, whiff rate vs 95+ < 22%, zone contact > 83%. Traditional stats lie in the minors.
+
+2. **Simulated MLB pitch mixes in development** — Feed prospects the pitch mix they'll actually see. Dominguez should have been facing 18-20% offspeed in AAA, not 13%.
+
+3. **Real-time in-season monitoring** — Volpe's breaking ball chase rate going from 20% to 49% in two months is an alarm. A rolling monitoring dashboard with alert thresholds would have triggered coaching intervention within weeks, not months.
+
+4. **Pre-promotion calibration** — MLB-quality pitch machines, VR pitch recognition training, and AAA coaches instructed to throw MLB-style sequences against top prospects. Bridge the quality gap before the call-up.
 
 ## Analysis Modules
 
-| Notebook | Question | Method |
-|----------|----------|--------|
-| [01 — Translation Gap](notebooks/01_translation_gap.ipynb) | Who converts tools into production? | Tools composite z-score vs. wOBA z-score |
-| [02 — Pitch Diagnostics](notebooks/02_pitch_diagnostics.ipynb) | Where do Volpe/Dominguez break? | Chase rate, whiff splits by pitch type, velocity tier, count |
-| [03 — Prediction Model](notebooks/03_prediction_model.ipynb) | Which metrics predict success? | Effect size analysis (Cohen's d) across prospect outcomes |
-| [04 — Prescriptions](notebooks/04_prescriptions.ipynb) | What should they work on? | Gap-to-benchmark analysis, nearest-neighbor comps |
-| [05 — Prevention](notebooks/05_prevention_analysis.ipynb) | How could the Yankees have prevented this? | Monthly trend analysis, pitch mix exploitation, readiness gates |
-
-## Development Prescriptions
-
-### Anthony Volpe
-1. **Reduce whiff rate vs 96+ mph**: 22.3% → 18.6% (timing adjustment against elite fastballs)
-2. **Reduce whiff rate on fastballs overall**: 19.1% → 17.3%
-3. Comp: Henderson, Witt Jr. — both handle elite velo better despite similar overall profiles
-
-### Jasson Dominguez
-1. **Reduce chase rate on breaking balls**: 41.3% → 33.2% (biggest single gap in the cohort)
-2. **Reduce whiff rate vs 96+ mph**: 25.0% → 18.6%
-3. Comp: Carroll, Jung — similar tools, better breaking ball discipline
+| Notebook | Question |
+|----------|----------|
+| [01 — Translation Gap](notebooks/01_translation_gap.ipynb) | Who has elite tools but poor results? |
+| [02 — Pitch Diagnostics](notebooks/02_pitch_diagnostics.ipynb) | Where exactly do Volpe/Dominguez break down? |
+| [03 — Effect Sizes](notebooks/03_prediction_model.ipynb) | Which metrics most separate stars from busts? |
+| [04 — Prescriptions](notebooks/04_prescriptions.ipynb) | What specific changes would improve their outlook? |
+| [05 — Prevention](notebooks/05_prevention_analysis.ipynb) | Monthly trends, pitch mix exploitation, readiness gates |
+| [06 — MiLB vs MLB](notebooks/06_milb_vs_mlb.ipynb) | The discipline was real — MLB broke it |
 
 ## Data
 
-All data sourced from public [Statcast](https://baseballsavant.mlb.com) via [pybaseball](https://github.com/jldbc/pybaseball) and [FanGraphs](https://fangraphs.com). No proprietary data.
+All data sourced from public [Statcast](https://baseballsavant.mlb.com) via [pybaseball](https://github.com/jldbc/pybaseball) and [FanGraphs](https://fangraphs.com).
 
-- **1,503,994 pitches** (2023-2024 MLB seasons)
-- **1,068 player-seasons** of batting stats
-- **19 prospect profiles** with complete Statcast data (4 dropped due to insufficient MLB PA)
+- **1,503,994 pitches** across 2023-2024 MLB seasons
+- **343 pre-debut pitches** (Spring Training / select MiLB Statcast)
+- **19 prospect profiles** with complete Statcast data
 
 ## Setup
 
@@ -67,37 +80,18 @@ git clone https://github.com/regimeiq/fire_fishman.git
 cd fire_fishman
 pip install -e .
 
-# Pull data (~5 min per season on first run, then cached as parquet)
+# Pull data (~5 min per season, cached as parquet after first run)
 python -c "from fire_fishman.data.statcast import get_statcast_pitches; get_statcast_pitches(2023); get_statcast_pitches(2024)"
 
-# Run notebooks
 jupyter notebook notebooks/
 ```
 
+## Limitations
+
+- **MiLB sample is small** (89-254 pitches from Spring Training). Directionally strong but not definitive. Full MiLB Statcast is expanding.
+- **Prospect cohort is n=19**. Effect sizes are more honest than ML classifiers at this sample size.
+- **Temporal aggregation** masks within-season dynamics. Notebook 05 addresses this with monthly breakdowns.
+
 ## Tech Stack
 
-- **pybaseball** — Statcast + FanGraphs data
-- **pandas** — data wrangling
-- **scikit-learn + XGBoost** — feature importance analysis
-- **matplotlib + seaborn** — visualization
-- **Cohen's d effect sizes** — statistical comparison (honest about small sample)
-
-## How the Yankees Could Have Prevented This
-
-**Volpe's repeating collapse:** His breaking ball chase rate starts at ~20% each April and spikes to 42-49% by mid-season — in both 2023 and 2024. Henderson (his closest comp) stays flat all year. A rolling monitoring dashboard would have flagged this within weeks.
-
-**Dominguez is already exploited:** He sees 18.8% offspeed pitches vs. 13.0% league average. The scouting report is in after just ~400 PA. The Yankees needed to stress-test this vulnerability in AAA before promotion.
-
-**Proposed framework:** Statcast-based promotion gates (chase rate on breaking < 35%, whiff rate vs 95+ < 22%) instead of traditional slash lines, plus real-time in-season monitoring with alert thresholds. See [Notebook 05](notebooks/05_prevention_analysis.ipynb) for the full analysis.
-
-![Volpe vs Henderson](outputs/figures/volpe_vs_henderson.png)
-
-## Limitations & Future Work
-
-- **Small sample (n=19)**: Not enough for robust ML — we use effect sizes and direct comparisons instead of pretending a classifier works here. Bayesian modeling with informative priors is the natural next step as more prospects debut.
-- **No MiLB Statcast**: Minor league Statcast data would allow pre-debut prediction. Currently only analyzing post-call-up data.
-- **Temporal dynamics**: We aggregate across seasons. Tracking metric changes *within* a prospect's first year could identify who's adjusting vs. who's stuck.
-
-## Why This Matters
-
-The difference between a prospect who converts and one who doesn't is worth tens of millions in roster decisions, trade value, and development investment. Physical tools are necessary but not sufficient — the translation gap is driven by pitch-type-specific adaptability, and that's coachable.
+Python, pybaseball, pandas, scikit-learn, XGBoost, matplotlib, seaborn
