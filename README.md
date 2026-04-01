@@ -1,14 +1,17 @@
 # fire_fishman
 
-## A Data-Driven Case Against Michael Fishman's Yankees Analytics
+## Quantifying Systemic Failures in Yankees Analytics (2017-2024)
+**Prospect Development, Lineup Construction, and an Original Composite Metric for Intangible Contributions**
 
 Michael Fishman ran the Yankees' analytics department from 2005 to 2023. Under his leadership, the Yankees made a series of analytically-driven decisions that were demonstrably wrong — not just in hindsight, but provably wrong with data that was available at the time.
 
-This project uses **1.5 million pitches of Statcast data**, **FanGraphs team and player statistics (2017-2024)**, and **MiLB development records** to quantify the damage across three fronts:
+This project uses **1.5 million pitches of Statcast data**, **FanGraphs team and player statistics (2017-2024)**, and **MiLB development records** to quantify the damage across five fronts:
 
 1. **Prospect Development** — Elite minor league hitters systematically collapsed at the MLB level because the pipeline didn't prepare them for MLB pitch recognition
 2. **Lineup Construction** — RH-heavy lineups at the most LHH-friendly park in baseball, because "RH hitters can just go oppo to the short porch"
 3. **Baserunning Philosophy** — Abandoned stolen bases and baserunning fundamentals, going from 7th in BsR to dead last while becoming the most HR-dependent team in baseball
+4. **Defensive Neglect** — 2nd worst OAA in baseball (2018-2021), costing 7.0 wins, then jumped to #1 DRS in 2022 proving the talent was always available
+5. **The Dawg Metric** — An original composite metric (pressure + hustle + grit) that predicts team WAR (r = +0.30) independently of offensive talent, improving playoff prediction from 82% to 87%
 
 ---
 
