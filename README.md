@@ -146,6 +146,43 @@ You can't out-homer elite pitchers for 7 games. When the HRs stop, you need othe
 
 ---
 
+## Case Study 5: The Dawg Metric — Quantifying Heart
+
+We built an original composite metric to measure what the Fishman Yankees never valued: clutch execution, baserunning aggression, and defensive effort.
+
+### Formula
+
+```
+Dawg = 0.30 × Pressure + 0.35 × Hustle + 0.35 × Grit
+
+Pressure = z(+WPA) + z(-WPA, flipped) / 2    — step up vs choke
+Hustle   = z(UBR) + z(BsR) / 2               — extra bases, aggression
+Grit     = z(OAA)                             — making plays in the field
+```
+
+All components z-scored within each season. Hustle and Grit weighted higher (35% each) because they're **controllable** — effort and philosophy, not luck.
+
+### It's independent of talent, but predicts winning
+
+| Test | Result |
+|------|--------|
+| Dawg vs wRC+ (offensive talent) | r = +0.09 (not significant) |
+| Dawg vs WAR (winning) | r = +0.30 (p < 0.0001) |
+| R² improvement (wRC+ alone -> +Dawg) | 59.0% -> 64.5% (+5.4pp) |
+| Year-ahead: Dawg -> next year WAR | r = +0.22 (p = 0.003) |
+| Playoff prediction accuracy | 82.4% -> 86.6% with Dawg components |
+
+**+1 standard deviation of Dawg = ~4.0 additional team WAR.** This isn't captured by offense. It's the stuff that wins in October — and it's exactly what Fishman's analytics department ignored for a decade.
+
+### Grit is the most persistent component
+
+OAA (defensive effort) is the most year-over-year stable component (r = +0.19, p = 0.009), meaning teams that invest in defense maintain that edge. The Yankees chose not to invest for 4 years.
+
+![Dawg Independence](outputs/figures/dawg_independence.png)
+![Dawg Predictions](outputs/figures/dawg_predictions.png)
+
+---
+
 ## The Fishman Scorecard
 
 | Bad Take | Damage | Period |
@@ -155,6 +192,7 @@ You can't out-homer elite pitchers for 7 games. When the HRs stop, you need othe
 | Abandoned baserunning as competitive tool | -39.2 BsR = 3.9 wins lost; 30th by 2024 | 2018-2024 |
 | Neglected defense for 4 years | -70.3 Def runs = 7.0 wins lost; -105 OAA | 2018-2021 |
 | #1 most HR-dependent team with no Plan B | 3 years at #1; can't win in October | 2018-2023 |
+| Zero investment in "Dawg" (clutch + hustle + grit) | Dawg predicts WAR (r=+0.30) independent of talent; Yankees bottom-third | 2017-2024 |
 
 **Estimated total damage: ~14 wins** from baserunning, defense, and lineup construction alone. That doesn't include the prospect development failures, the October collapses, or the opportunity cost of building a one-dimensional roster in the most versatile park in baseball.
 
@@ -174,6 +212,7 @@ The fix was always available — the 2022 team proved it. They just had an analy
 | [06 — MiLB vs MLB](notebooks/06_milb_vs_mlb.ipynb) | The discipline was real — MLB broke it |
 | [07 — Systemic Analysis](notebooks/07_yankees_systemic.ipynb) | Why this keeps happening to the Yankees |
 | [08 — Fishman's Bad Takes](notebooks/08_fishman_case_studies.ipynb) | Short porch, baserunning, defense, dawg metric |
+| [09 — Dawg Metric Deep Dive](notebooks/09_dawg_metric.ipynb) | Independence test, regression, year-ahead prediction, playoff model |
 
 ## Data
 
@@ -184,6 +223,8 @@ All data sourced from public [Statcast](https://baseballsavant.mlb.com) via [pyb
 - **343 pre-debut pitches** (Spring Training / select MiLB Statcast)
 - **19 prospect profiles** with complete Statcast data
 - **FanGraphs MiLB stats** for key prospects via FanGraphs API
+- **FanGraphs team fielding stats** (2017-2024) for OAA, DRS, UZR, and Def
+- **216 team-seasons** of combined batting + fielding data for Dawg metric regression
 
 ## Setup
 
