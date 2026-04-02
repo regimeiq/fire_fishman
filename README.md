@@ -15,7 +15,7 @@ This project uses **3M+ pitches of Statcast data (2021-2026)**, **FanGraphs team
 6. **The Extremes Trap** — Oscillating between all-or-nothing sluggers (Gallo: 18.5% barrel rate, 40% K) and contactless slap hitters (IKF: 1.2% barrel rate, .650 OPS) while contenders built complete hitters
 7. **The Diamond in the Rough** — A 12th-round pick holds his discipline (21% chase rate) while the "next Mickey Mantle" and a 1st-rounder both collapse at 31% — why did the org's least-hyped prospect succeed where the blue chips failed?
 8. **Roster Construction** — Profiling the archetypes contenders actually build (complete hitters, speed/defense specialists, platoon bats, table-setters) vs the Yankees' extreme-only approach
-9. **The Ideal 1-9 Lineup** — Data-driven lineup position model with role-specific fit scores and production-first assignment, applied to real rosters to diagnose gaps
+9. **The Ideal 1-9 Lineup** — SABR-based lineup position model with role-specific fit scores, applied to real rosters as a gap analysis tool
 
 ---
 
@@ -335,31 +335,9 @@ This is the profile that Rice exemplifies. It's also the profile the Dawg metric
 
 ---
 
-## Case Study 9: The Ideal 1-9 Lineup — Beyond "Sort by wOBA"
+## Case Study 9: The Ideal 1-9 Lineup
 
-Standard sabermetric lineup construction says: put your best OBP guy first, best hitter second, sort the rest by wOBA, and don't overthink it because lineup order barely matters (~10-15 runs/season). That's true in aggregate. But the real value of a lineup model isn't finding 15 runs in the batting order — it's **diagnosing what's missing from the roster**.
-
-### Each spot has a distinct role
-
-We defined 9 lineup positions with role-specific profiles, weighted by the metrics that matter most for that spot:
-
-| Spot | Role | Key Metrics | Our Fine-Tuning |
-|------|------|-------------|-----------------|
-| **1** | Table-Setter | OBP + speed + low K% | Speed creates run expectancy that pure OBP doesn't capture |
-| **2** | Best Hitter | Highest wOBA + OBP | Your MVP bats here — SABR agrees |
-| **3** | OBP + Power | OBP >= .340, ISO >= .180 | Not a pure slugger — needs to get on base for cleanup |
-| **4** | Cleanup | Max ISO, Barrel% >= 10% | Pure damage. Biggest power bat goes here |
-| **5** | Power/Contact | ISO >= .150, K% <= 25% | Contact matters — can't strand runners with K's |
-| **6** | Bridge Hitter | wOBA >= .310, balanced profile | Connects power-heavy top to contact-heavy bottom |
-| **7** | Contact Manufacturer | K% <= 20%, AVG >= .260 | Moves runners, puts ball in play. Manufacturing in the bottom third |
-| **8** | Specialist | Defense-first, BsR > 0 | Speed to score from 1st on doubles. Lowest offensive floor |
-| **9** | Second Leadoff | OBP >= .320, BB% >= 9% | OBP and patience to turn the lineup over to 1-2 — SABR agrees |
-
-### Production first, role-fit second
-
-Each player gets a 0-100 fit score for every lineup position based on z-scored metrics weighted by that spot's priorities. But fit scores alone produce absurd lineups — the model uses **production rank as the backbone** and role-fit adjusts within a constrained band. No good bat gets buried in a low-leverage spot.
-
-The result: a lineup card where production is respected AND every player is in a role that matches their skill set, plus a **gap analysis** showing which spots are well-filled (70+ fit score) and which are missing pieces (<50). The full model with a live roster application is in [Notebook 12](notebooks/12_ideal_lineup.ipynb).
+Using standard SABR lineup principles, we built a lineup position model with role-specific fit scores (0-100) for each spot 1-9, then applied it to real rosters as a **gap analysis** — diagnosing which spots are well-filled and which archetypes are missing. The full model is in [Notebook 12](notebooks/12_ideal_lineup.ipynb).
 
 ---
 
