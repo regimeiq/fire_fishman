@@ -7,7 +7,7 @@
 
 Michael Fishman has run the Yankees' analytics department since 2005. Under his leadership, the Yankees have made a series of analytically-driven decisions that were demonstrably wrong — not just in hindsight, but provably wrong with data that was available at the time.
 
-This project uses **3M+ pitches of Statcast data (2021-2026)**, **FanGraphs team and player statistics (2017-2025)**, **MiLB development records**, and **regression analysis with cross-validation** to quantify the damage across seven analyses:
+This project uses **3M+ pitches of Statcast data (2021-2026)**, **FanGraphs team and player statistics (2017-2025)**, **MiLB development records**, **org-level pipeline comparisons (43 prospects across 16 organizations)**, and **regression analysis with cross-validation** to quantify the damage across seven analyses:
 
 1. **Prospect Development** — Elite minor league hitters systematically collapsed at the MLB level because the pipeline didn't prepare them for MLB pitch recognition
 2. **Baserunning Philosophy** — Abandoned stolen bases and baserunning fundamentals, going from 7th in BsR to dead last while becoming the most HR-dependent team in baseball
@@ -24,6 +24,8 @@ This project uses **3M+ pitches of Statcast data (2021-2026)**, **FanGraphs team
 ### 1. The Prospect Pipeline ([Notebooks 01-07, 10](notebooks/))
 
 Volpe and Dominguez had elite minor league discipline — both won BA's "Best Strike-Zone Discipline" — then collapsed at the MLB level. Chase rates doubled for both. Meanwhile, Rice (12th-round pick, 14.8% MiLB BB rate) held his chase rate at 23% and broke out in 2025. The pattern suggests a systemic development issue, not individual talent failures. Across a prospect cohort, the metrics that separate stars from busts are pitch-type-specific (offspeed chase, fastball whiff) — not aggregate whiff or zone contact.
+
+**Org-level comparison (43 prospects, 2019-2024 debuts):** Baltimore converts at 100% (5/5 star or solid), Cleveland at 60% (3/5), while the Yankees sit at 33% (2/6) — tied for worst among target orgs. The orgs with fewer resources are systematically outperforming the Yankees at translating minor league talent to MLB production.
 
 ### 2. Baserunning: 7th to Dead Last ([Notebook 08](notebooks/08_fishman_case_studies.ipynb))
 
@@ -55,7 +57,7 @@ Contenders carry distinct archetypes (stars, complete hitters, speed/defense spe
 
 | Bad Take | Damage | Period |
 |----------|--------|--------|
-| Prospect pipeline doesn't prepare for MLB pitch recognition | Stars pass 60%+ of Statcast gates; Yankees busts pass <40% | 2019-2024 |
+| Prospect pipeline doesn't prepare for MLB pitch recognition | 33% success rate (2/6) vs BAL 100% (5/5) and CLE 60% (3/5); stars pass 60%+ of Statcast gates, Yankees busts pass <40% | 2019-2024 |
 | Abandoned baserunning as competitive tool | -39.2 BsR = 3.9 wins lost; 30th by 2024 | 2018-2024 |
 | Neglected defense for 4 years | -70.4 Def runs = 7.0 wins lost; -105 OAA | 2018-2021 |
 | #1 most HR-dependent team with no Plan B | 3 years at #1; can't win in October | 2018-2023 |
@@ -80,7 +82,7 @@ The fix was always available — the 2022 team proved it, and Ben Rice proved it
 | [04 — Prescriptions](notebooks/04_prescriptions.ipynb) | What specific changes would improve their outlook? |
 | [05 — Prevention](notebooks/05_prevention_analysis.ipynb) | Monthly trends, pitch mix exploitation, readiness gates |
 | [06 — MiLB vs MLB](notebooks/06_milb_vs_mlb.ipynb) | The discipline was real — MLB broke it |
-| [07 — Systemic Analysis](notebooks/07_yankees_systemic.ipynb) | Why this keeps happening to the Yankees |
+| [07 — Systemic Analysis](notebooks/07_yankees_systemic.ipynb) | Org-level pipeline comparison: NYY vs BAL, CLE, LAD, TB, ATL |
 | [08 — Fishman's Bad Takes](notebooks/08_fishman_case_studies.ipynb) | Baserunning, defense, HR dependency, 2022 paradox, extremes trap |
 | [09 — Dawg Metric Deep Dive](notebooks/09_dawg_metric.ipynb) | Independence test, regression, year-ahead prediction, playoff model |
 | [10 — Rice: The Counter-Example](notebooks/10_rice_comparison.ipynb) | Ben Rice vs Volpe/Dominguez/Peraza — what success looks like |
@@ -97,7 +99,7 @@ All data sourced from public [Statcast](https://baseballsavant.mlb.com) via [pyb
 | FanGraphs team fielding | **240 team-seasons** | 2017-2024 | OAA, DRS, UZR, Def |
 | FanGraphs player batting | **2,500+ player-seasons** | 2021-2025 | Barrel%, K%, BB%, wOBA, wRC+, hitter archetype classification |
 | Dawg metric regression | **216 team-seasons** | 2017-2024 | Linear regression, 10-fold CV, playoff prediction |
-| Prospect profiles | **24 prospects** | 2019-2026 debuts | Tools scores, translation gaps, readiness gates |
+| Prospect profiles | **43 prospects, 16 orgs** | 2019-2026 debuts | Tools scores, translation gaps, readiness gates, org-level success rates |
 | MiLB stats | **10 prospect careers** | 2021-2024 | BB%, K%, wOBA, wRC+ by level for pre-/post-debut comparison |
 | Pre-debut Statcast | **343 pitches** | Spring Training / MiLB | Pitch recognition calibration baseline |
 
@@ -134,7 +136,7 @@ jupyter notebook notebooks/
 ## Limitations
 
 - **MiLB sample is small** (89-254 pitches from Spring Training). Directionally strong but not definitive.
-- **Prospect cohort is small (n~20)**. Effect sizes are more honest than ML classifiers at this sample size, but findings are suggestive and hypothesis-generating, not proof of causation.
+- **Prospect cohort is modest (n=43 across 16 orgs)**. Org-level rates for orgs with n < 4 (ATL, LAD, TB) should be treated with caution. Effect sizes are more honest than ML classifiers at this sample size, but findings are suggestive and hypothesis-generating, not proof of causation.
 - **Baserunning estimates are conservative** — BsR captures runs above average, not the full opportunity cost of the philosophy.
 - **Rice's 2024 MLB sample is small** (~180 PA, 50 games). The 2025 full season (530 PA) is the meaningful data point.
 - **Dawg metric validation is primarily same-year.** The r = +0.30 and R² improvement are in-sample (with 10-fold CV). The year-ahead correlation (r = +0.22) is the true out-of-sample test. The playoff prediction proxy (top-12 WAR teams) is defined from the same data used to build the metric.
