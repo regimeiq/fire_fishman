@@ -241,6 +241,95 @@ Contenders consistently had 3-5 complete hitters. The Yankees had 1-2. That's th
 
 ---
 
+## Case Study 7: The Counter-Example — Ben Rice Proves the System Was Broken
+
+If every Yankees prospect failed, you could blame scouting, the AL East, or bad luck. But Ben Rice came through the same pipeline and succeeded — which makes the other failures more damning, not less.
+
+### The discipline held
+
+Rice debuted in 2024 to a rough surface line: .171 AVG, .613 OPS in 50 games. But the underlying numbers told a different story:
+
+| Metric | Rice 2024 | Rice 2025 | Volpe (career) | Dominguez (career) |
+|--------|-----------|-----------|----------------|-------------------|
+| Chase rate | 20.6% | 21.2% | ~31% | ~31% |
+| Whiff rate | 25.8% | 21.2% | ~28% | ~30% |
+| Barrel% | 15.6% | 15.4% | ~7% | ~9% |
+| xwOBA | .340 | **.394** | ~.300 | ~.290 |
+| BABIP | **.186** | .271 | ~.290 | ~.280 |
+
+Rice's 2024 BABIP of .186 was absurdly low — league average is ~.300. He was getting robbed, not failing. His xwOBA of .340 on a small sample (50 games, ~180 PA) signaled the contact quality was real. In 2025, with 530 PA, it all came together: .255/.836 OPS, 26 HR, and an xwOBA of .394 that says he's even better than the numbers show.
+
+### The short porch connection
+
+Rice is exactly the player profile Case Study 2 said the Yankees should build around: a left-handed hitter who can use the whole field and lets Yankee Stadium's 314-foot right field porch work for him when the pitch is there. He's not one-dimensional — he goes oppo when the situation calls for it and pulls when a pitcher leaves one over the plate. That's a complete hitter, not a pull machine.
+
+### What Rice did differently
+
+| Dimension | Rice | Volpe/Dominguez |
+|-----------|------|-----------------|
+| MiLB BB% | 13-15% | 11-15% |
+| MLB chase rate | **21%** (held) | **31%** (doubled) |
+| Breaking ball vulnerability | Controlled | Exploited |
+| BABIP adjustment | Unlucky in year 1, corrected in year 2 | Chase rate never corrected |
+| Approach | Uses whole field, barrels the ball | Expanded zone under pressure |
+
+The readiness gate framework from Notebook 05 validates this: Rice passes more gates than Volpe, Dominguez, or Peraza. His pitch recognition survived the jump to MLB-quality breaking balls. Theirs didn't. Same org, same park, different outcome — because his development actually worked.
+
+### The timeline matters
+
+Fishman left after 2023. Rice broke out in 2025. The coaching and development philosophy may have shifted, and Rice was the first full-season beneficiary. That's not proof of causation — but it's a data point worth tracking.
+
+![Rice vs Failures](outputs/figures/rice_vs_failures_discipline.png)
+
+---
+
+## Case Study 8: Roster Construction — Build Complete, Not Extreme
+
+The Gallo/IKF problem from Case Study 6 wasn't just about two bad acquisitions. It was a philosophy: the Yankees consistently filled roster spots with extreme archetypes instead of building a balanced lineup. Contenders don't do this.
+
+### The roster blueprint
+
+Every contending team carries a mix of roles:
+
+| Role | Spots | Key Traits | What They Give Up |
+|------|-------|------------|-------------------|
+| **The Star** | 1-2 | Elite in everything | Nothing — they do it all |
+| **The Complete Hitter** | 3-4 | Barrel + contact + walks + baserunning | Ceiling (they're .310-.350 wOBA, not .400) |
+| **The Speed/Defense Specialist** | 1 | Elite defense, runs the bases, makes enough contact | Power — sub-5% barrel rate is fine if they're +15 OAA |
+| **The Power Platoon** | 1 | Mashes one side, high barrel rate | Contact and playing time — sits vs same-side arms |
+| **The Table-Setter** | 1 | High OBP, sees pitches, controls the zone | Power — they walk and single, not homer |
+
+Specialists are fine — a speed+defense guy, a power platoon bat, a high-OBP table-setter. The mistake is when 3+ roster spots are filled by the same extreme. Two power bats are fine if you have speed elsewhere. Two speed guys are fine if you have power elsewhere. **Three Gallos or three IKFs = broken.**
+
+### The Yankees' archetype gap
+
+Defining a "complete hitter" as K% < 25%, Barrel% > 6%, BB% > 8%, wOBA > .310 — not star numbers, just baseline competence:
+
+| Year | Yankees Complete | Dodgers Complete | Astros Complete | Yankees Extremes |
+|------|----------------|-----------------|-----------------|------------------|
+| 2021 | **1** | 5 | 5 | 2 slugger + 1 contact |
+| 2022 | **1** | 5 | 4 | 2 slugger + 2 contact |
+| 2023 | **2** | 4 | 3 | 1 slugger + 1 contact |
+| 2024 | **2** | 5 | 3 | 1 slugger + 0 contact |
+
+The Dodgers consistently carry 4-5 complete hitters. The Yankees have 1-2 and fill the rest with extremes. The problem isn't that they acquired Gallo or IKF specifically — it's that the roster construction philosophy never had room for balanced, multi-tool role players.
+
+### The anti-extreme: what a balanced role player looks like
+
+The ideal complementary hitter doesn't need to be elite at everything. They just need to not be one-dimensional:
+
+- **Makes contact** (K% < 22%): Can move runners, execute with 2 strikes
+- **Has some barrel** (Barrel% > 6%): Not an empty batting average
+- **Takes walks** (BB% > 8%): Gets on base, works counts
+- **Uses the whole field**: Not locked into one approach
+- **Can run** (BsR > 0): Doesn't clog the bases
+
+This is the profile that Rice exemplifies. It's also the profile the Dawg metric rewards — complete hitters run the bases (Hustle), produce in leverage situations because they have multiple ways to beat you (Pressure), and a lineup full of balanced hitters creates more competitive at-bats than a lineup of extremes waiting for a three-run homer.
+
+![Hitter Spectrum](outputs/figures/hitter_spectrum.png)
+
+---
+
 ## The Fishman Scorecard
 
 | Bad Take | Damage | Period |
