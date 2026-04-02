@@ -55,7 +55,7 @@ Contenders carry distinct archetypes (stars, complete hitters, speed/defense spe
 
 ### 9. Lineup Gap Analysis ([Notebook 12](notebooks/12_ideal_lineup.ipynb))
 
-A SABR-based lineup position model with role-specific fit scores (0-100). Applied to the 2025 Yankees, Judge is the best fit for 8 of 9 lineup spots — diagnostic proof that the roster lacks distinct archetypes.
+A SABR-based lineup position model with role-specific fit scores (0-100). Anchor Judge at #2 (he's generational, he fits everywhere) and the diagnostic question becomes: what does the rest of the roster look like? The gap analysis reveals which lineup roles lack a clean fit and where the archetype depth is thin.
 
 ---
 
