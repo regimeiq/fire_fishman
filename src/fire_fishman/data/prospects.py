@@ -20,6 +20,7 @@ PROSPECT_DATA = [
     # === Yankees focus ===
     ("Anthony Volpe",       683011, 2023, 5,  "disappointing"),
     ("Jasson Dominguez",    691176, 2023, 15, "disappointing"),
+    ("Ben Rice",            700250, 2024, 50, "solid"),
 
     # === Stars (tools converted) ===
     ("Julio Rodriguez",     677594, 2022, 1,  "star"),
@@ -68,7 +69,7 @@ def get_prospect_ids() -> dict[str, int]:
 def get_yankees_prospects() -> pd.DataFrame:
     """Return just the Yankees prospects."""
     df = get_prospect_df()
-    return df[df["name"].isin(["Anthony Volpe", "Jasson Dominguez"])]
+    return df[df["name"].isin(["Anthony Volpe", "Jasson Dominguez", "Ben Rice"])]
 
 
 # MiLB season-level stats sourced from FanGraphs API (/api/players/stats)
@@ -117,12 +118,24 @@ MILB_STATS = {
         2022: {"level": "AAA", "pa": 480, "avg": .259, "obp": .316, "slg": .399,
                "bb_pct": .081, "k_pct": .209},
     },
+    "Ben Rice": {
+        2022: {"level": "A", "pa": 290, "avg": .267, "obp": .368, "slg": .442,
+               "bb_pct": .131, "k_pct": .210,
+               "note": "68 games at Single-A Tampa; solid discipline for first full season"},
+        2023: {"level": "A+/AA", "pa": 330, "avg": .324, "obp": .434, "slg": .615,
+               "bb_pct": .133, "k_pct": .212,
+               "note": "Breakout: 20 HR in 73 games across 3 levels; Yankees MiLB POTY"},
+        2024: {"level": "AAA", "pa": 135, "avg": .294, "obp": .428, "slg": .661,
+               "bb_pct": .148, "k_pct": .200,
+               "note": "Dominated AAA before June call-up; 15% BB rate elite"},
+    },
 }
 
 # FanGraphs player IDs for API access
 FANGRAPHS_IDS = {
     "Anthony Volpe": 27647,
     "Jasson Dominguez": 28080,
+    "Ben Rice": 29576,
     "Gunnar Henderson": 26289,
     "Corbin Carroll": 25878,
     "Bobby Witt Jr.": 25764,
@@ -136,7 +149,7 @@ YANKEES_SYSTEM = [
     ("Oswald Peraza",       672724, 2022, 20, "bust"),
     ("Everson Pereira",     676633, 2024, 80, "bust"),
     ("Austin Wells",        670770, 2023, 25, "solid"),
-    ("Ben Rice",            700892, 2024, 50, "disappointing"),
+    ("Ben Rice",            700250, 2024, 50, "solid"),
 ]
 
 

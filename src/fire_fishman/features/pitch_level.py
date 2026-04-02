@@ -187,3 +187,100 @@ def compute_pitch_features_for_cohort(
         features["batter_id"] = bid
         records.append(features)
     return pd.DataFrame(records).set_index("batter_id")
+
+
+def compute_monthly_discipline(
+    pitches: pd.DataFrame, batter_id: int, min_pitches: int = 50
+) -> pd.DataFrame:
+    """Monthly plate discipline metrics for trajectory analysis.
+
+    Returns one row per (year, month) with chase rate, whiff rate,
+    breaking ball chase, offspeed chase, zone contact, and 96+ whiff.
+    Months with fewer than *min_pitches* are excluded.
+    """
+    bp = pitches[pitches["batter"] == batter_id].copy()
+    if len(bp) == 0:
+        return pd.DataFrame()
+
+    bp["game_date"] = pd.to_datetime(bp["game_date"])
+    bp["year"] = bp["game_date"].dt.year
+    bp["month"] = bp["game_date"].dt.month
+    bp["is_swing"] = bp["description"].apply(_is_swing)
+    bp["is_whiff"] = bp["description"].apply(_is_whiff)
+    bp["in_zone"] = bp.apply(
+        lambda r: _is_in_zone(r["plate_x"], r["plate_z"], r["sz_top"], r["sz_bot"])
+        if pd.notna(r["plate_x"]) else None,
+        axis=1,
+    )
+    bp["pitch_group"] = bp["pitch_type"].apply(_classify_pitch)
+
+    records = []
+    for (year, month), mp in bp.groupby(["year", "month"]):
+        if len(mp) < min_pitches:
+            continue
+        oz = mp[mp["in_zone"] == False]
+        iz = mp[mp["in_zone"] == True]
+        swings = mp[mp["is_swing"]]
+        brk_oz = mp[(mp["pitch_group"] == "breaking") & (mp["in_zone"] == False)]
+        off_oz = mp[(mp["pitch_group"] == "offspeed") & (mp["in_zone"] == False)]
+        velo96 = mp[(mp["release_speed"] >= 96) & mp["is_swing"]]
+        iz_swings = iz[iz["is_swing"]]
+
+        records.append({
+            "year": int(year),
+            "month": int(month),
+            "n_pitches": len(mp),
+            "chase_rate": oz["is_swing"].mean() if len(oz) > 0 else np.nan,
+            "whiff_rate": swings["is_whiff"].mean() if len(swings) > 0 else np.nan,
+            "brk_chase": brk_oz["is_swing"].mean() if len(brk_oz) > 0 else np.nan,
+            "off_chase": off_oz["is_swing"].mean() if len(off_oz) > 0 else np.nan,
+            "zone_contact": (
+                1 - iz_swings["is_whiff"].mean() if len(iz_swings) > 0 else np.nan
+            ),
+            "velo96_whiff": velo96["is_whiff"].mean() if len(velo96) > 0 else np.nan,
+        })
+    return pd.DataFrame(records)
+
+
+def compute_yearly_discipline(
+    pitches: pd.DataFrame, batter_id: int
+) -> pd.DataFrame:
+    """Season-level discipline metrics aggregated from pitch data."""
+    bp = pitches[pitches["batter"] == batter_id].copy()
+    if len(bp) == 0:
+        return pd.DataFrame()
+
+    bp["game_date"] = pd.to_datetime(bp["game_date"])
+    bp["year"] = bp["game_date"].dt.year
+    bp["is_swing"] = bp["description"].apply(_is_swing)
+    bp["is_whiff"] = bp["description"].apply(_is_whiff)
+    bp["in_zone"] = bp.apply(
+        lambda r: _is_in_zone(r["plate_x"], r["plate_z"], r["sz_top"], r["sz_bot"])
+        if pd.notna(r["plate_x"]) else None,
+        axis=1,
+    )
+    bp["pitch_group"] = bp["pitch_type"].apply(_classify_pitch)
+
+    records = []
+    for year, yp in bp.groupby("year"):
+        oz = yp[yp["in_zone"] == False]
+        iz = yp[yp["in_zone"] == True]
+        swings = yp[yp["is_swing"]]
+        brk_oz = yp[(yp["pitch_group"] == "breaking") & (yp["in_zone"] == False)]
+        off_oz = yp[(yp["pitch_group"] == "offspeed") & (yp["in_zone"] == False)]
+        velo96 = yp[(yp["release_speed"] >= 96) & yp["is_swing"]]
+        iz_swings = iz[iz["is_swing"]]
+
+        records.append({
+            "year": int(year),
+            "n_pitches": len(yp),
+            "chase_rate": oz["is_swing"].mean() if len(oz) > 0 else np.nan,
+            "whiff_rate": swings["is_whiff"].mean() if len(swings) > 0 else np.nan,
+            "brk_chase": brk_oz["is_swing"].mean() if len(brk_oz) > 0 else np.nan,
+            "off_chase": off_oz["is_swing"].mean() if len(off_oz) > 0 else np.nan,
+            "zone_contact": (
+                1 - iz_swings["is_whiff"].mean() if len(iz_swings) > 0 else np.nan
+            ),
+            "velo96_whiff": velo96["is_whiff"].mean() if len(velo96) > 0 else np.nan,
+        })
+    return pd.DataFrame(records)
