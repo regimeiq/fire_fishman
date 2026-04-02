@@ -1,0 +1,22 @@
+# Pinned versions from working environment (Python 3.11+)
+# Install: pip install -r requirements.txt
+#
+# Note: xgboost on Apple Silicon requires libomp:
+#   brew install libomp
+
+pandas==2.3.3
+numpy==1.26.4
+pybaseball==2.2.7
+scikit-learn==1.6.1
+xgboost==2.0.3
+pymc==5.8.0
+bambi==0.13.0
+arviz==0.17.1
+matplotlib==3.9.4
+seaborn==0.13.2
+jupyter==1.1.1
+ipykernel==6.31.0
+
+# Dev dependencies
+ruff==0.15.8
+pytest==8.4.2

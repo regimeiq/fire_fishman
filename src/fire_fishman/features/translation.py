@@ -34,10 +34,11 @@ def compute_translation_gap(
     # Both should have batter_id as index
     merged = tools_df.join(results_df, how="inner")
 
-    # Z-score results too
+    # Z-score results too (guard against zero variance)
     for col in ["woba", "wrc_plus"]:
         if col in merged.columns:
-            merged[f"{col}_z"] = (merged[col] - merged[col].mean()) / merged[col].std()
+            std = merged[col].std()
+            merged[f"{col}_z"] = (merged[col] - merged[col].mean()) / std if std > 0 else 0.0
 
     # Gap = tools_z - results_z
     if "tools_composite_z" in merged.columns and "woba_z" in merged.columns:

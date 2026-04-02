@@ -28,7 +28,11 @@ def compute_exit_velo_metrics(pitches: pd.DataFrame, batter_id: int) -> dict:
 
 
 def compute_barrel_rate(pitches: pd.DataFrame, batter_id: int) -> float:
-    """Barrel rate = barrels / batted ball events."""
+    """Barrel rate = barrels / batted ball events.
+
+    Uses Statcast's native barrel classification when available,
+    falls back to an approximation otherwise.
+    """
     bbe = pitches[
         (pitches["batter"] == batter_id)
         & pitches["launch_speed"].notna()
@@ -37,14 +41,17 @@ def compute_barrel_rate(pitches: pd.DataFrame, batter_id: int) -> float:
     if len(bbe) == 0:
         return np.nan
 
-    # Barrel definition (simplified from Statcast):
-    # EV >= 98 mph and LA between 26-30, expanding range as EV increases
+    # Prefer Statcast's own barrel flag if present
+    if "barrel" in bbe.columns:
+        return bbe["barrel"].fillna(0).astype(bool).mean()
+
+    # Fallback: approximation of Statcast barrel definition
     barrels = bbe[
         (bbe["launch_speed"] >= 98)
         & (bbe["launch_angle"] >= 26 - (bbe["launch_speed"] - 98) * 0.5)
         & (bbe["launch_angle"] <= 30 + (bbe["launch_speed"] - 98) * 0.5)
-        & (bbe["launch_angle"] >= 8)  # floor
-        & (bbe["launch_angle"] <= 50)  # ceiling
+        & (bbe["launch_angle"] >= 8)
+        & (bbe["launch_angle"] <= 50)
     ]
     return len(barrels) / len(bbe)
 
@@ -89,7 +96,8 @@ def compute_tools_for_cohort(pitches: pd.DataFrame, batter_ids: list[int]) -> pd
     # Z-score each metric, then average for composite
     tool_cols = ["avg_exit_velo", "ev90", "barrel_rate", "hard_hit_rate"]
     for col in tool_cols:
-        df[f"{col}_z"] = (df[col] - df[col].mean()) / df[col].std()
+        std = df[col].std()
+        df[f"{col}_z"] = (df[col] - df[col].mean()) / std if std > 0 else 0.0
 
     z_cols = [f"{c}_z" for c in tool_cols]
     df["tools_composite_z"] = df[z_cols].mean(axis=1)
