@@ -269,6 +269,8 @@ The fix was always available — the 2022 team proved it. They just had an analy
 | [07 — Systemic Analysis](notebooks/07_yankees_systemic.ipynb) | Why this keeps happening to the Yankees |
 | [08 — Fishman's Bad Takes](notebooks/08_fishman_case_studies.ipynb) | Short porch, baserunning, defense, dawg metric, 2022 paradox, extremes trap |
 | [09 — Dawg Metric Deep Dive](notebooks/09_dawg_metric.ipynb) | Independence test, regression, year-ahead prediction, playoff model |
+| [10 — Rice: The Counter-Example](notebooks/10_rice_comparison.ipynb) | Ben Rice vs Volpe/Dominguez/Peraza — what success looks like |
+| [11 — Ideal Role Player Profile](notebooks/11_role_player_profile.ipynb) | The anti-Gallo/anti-IKF: what complementary hitters should look like |
 
 ## Data
 
@@ -277,7 +279,7 @@ All data sourced from public [Statcast](https://baseballsavant.mlb.com) via [pyb
 - **3,026,120 pitches** across 2021-2024 MLB seasons
 - **FanGraphs team batting stats** (2017-2024) for baserunning and lineup analysis
 - **343 pre-debut pitches** (Spring Training / select MiLB Statcast)
-- **19 prospect profiles** with complete Statcast data
+- **20 prospect profiles** with complete Statcast data (including Ben Rice as Yankees success case)
 - **FanGraphs MiLB stats** for key prospects via FanGraphs API
 - **FanGraphs team fielding stats** (2017-2024) for OAA, DRS, UZR, and Def
 - **216 team-seasons** of combined batting + fielding data for Dawg metric regression
