@@ -13,9 +13,9 @@ This project uses **3M+ pitches of Statcast data (2021-2026)**, **FanGraphs team
 4. **Defensive Neglect** — 2nd worst OAA in baseball (2018-2021), costing 7.0 wins, then jumped to #1 DRS in 2022 proving the talent was always available
 5. **The Dawg Metric** — An original composite metric (pressure + hustle + grit) that predicts team WAR (r = +0.30) independently of offensive talent, validated via Bayesian regression and 10-fold CV with playoff prediction improvement from 82% to 86%
 6. **The Extremes Trap** — Oscillating between all-or-nothing sluggers (Gallo: 18.5% barrel rate, 40% K) and contactless slap hitters (IKF: 1.2% barrel rate, .650 OPS) while contenders built complete hitters
-7. **The Counter-Example** — Ben Rice proves the system was broken, not the talent: his discipline held (21% chase rate vs 31% for Volpe/Dominguez), validating the readiness gate framework
+7. **The Diamond in the Rough** — A 12th-round pick holds his discipline (21% chase rate) while the "next Mickey Mantle" and a 1st-rounder both collapse at 31% — why did the org's least-hyped prospect succeed where the blue chips failed?
 8. **Roster Construction** — Profiling the archetypes contenders actually build (complete hitters, speed/defense specialists, platoon bats, table-setters) vs the Yankees' extreme-only approach
-9. **The Ideal 1-9 Lineup** — Data-driven lineup position model with role-specific fit scores, optimal assignment via Hungarian algorithm, and a live 2025 Yankees application showing gaps vs the ideal
+9. **The Ideal 1-9 Lineup** — Data-driven lineup position model with role-specific fit scores and production-first assignment, applied to real rosters to diagnose gaps
 
 ---
 
@@ -242,9 +242,11 @@ Contenders consistently had 3-5 complete hitters. The Yankees had 1-2. That's th
 
 ---
 
-## Case Study 7: The Counter-Example — Ben Rice Proves the System Was Broken
+## Case Study 7: The Diamond in the Rough — Why Did Rice Succeed Where the Blue Chips Failed?
 
-If every Yankees prospect failed, you could blame scouting, the AL East, or bad luck. But Ben Rice came through the same pipeline and succeeded — which makes the other failures more damning, not less.
+Jasson Dominguez was the biggest international signing in Yankees history — "the next Mickey Mantle." Anthony Volpe was a 1st-round pick ranked top-5 in baseball. The organization poured years of development resources, coaching attention, and spotlight into both. Neither has hit at the MLB level.
+
+Ben Rice was a 12th-round pick — about as far from a blue-chip prospect as you can get. Lower profile, less fanfare, less organizational investment. He's the one who figured it out. That's not a story about a broken system — it's a harder question: **why did the diamond in the rough succeed while the crown jewels didn't?**
 
 ### The discipline held
 
@@ -274,7 +276,13 @@ Rice is exactly the player profile Case Study 2 said the Yankees should build ar
 | BABIP adjustment | Unlucky in year 1, corrected in year 2 | Chase rate never corrected |
 | Approach | Uses whole field, barrels the ball | Expanded zone under pressure |
 
-The readiness gate framework from Notebook 05 validates this: Rice passes more gates than Volpe, Dominguez, or Peraza. His pitch recognition survived the jump to MLB-quality breaking balls. Theirs didn't. Same org, same park, different outcome — because his development actually worked.
+The readiness gate framework from Notebook 05 validates this: Rice passes more gates than Volpe, Dominguez, or Peraza. His pitch recognition survived the jump to MLB-quality breaking balls. Theirs didn't.
+
+### The question the front office can't dodge
+
+Same org, same park, same analytics department — but wildly different outcomes. Were the blue chips over-coached? Over-pressured? Given a development track that optimized for the wrong things? Or did Rice succeed precisely *because* nobody was watching — left alone to develop his natural approach while the organization obsessed over its marquee names?
+
+Either way, it's damning: the prospects they invested the most in are the ones who collapsed, and the lower-profile guy they weren't building the franchise around is the one producing. That's not bad luck — that's a development philosophy question.
 
 ![Rice vs Failures](outputs/figures/rice_vs_failures_discipline.png)
 
@@ -342,27 +350,16 @@ We defined 9 lineup positions with role-specific profiles, weighted by the metri
 | **3** | OBP + Power | OBP >= .340, ISO >= .180 | Not a pure slugger — needs to get on base for cleanup |
 | **4** | Cleanup | Max ISO, Barrel% >= 10% | Pure damage. This is where your biggest power bat goes |
 | **5** | Power/Contact | ISO >= .150, K% <= 25% | Contact matters — can't strand runners with K's |
-| **6** | Handedness Break | Solid all-around, opposite hand from 5 | Forces bullpen decisions. SABR ignores handedness alternation |
+| **6** | Bridge Hitter | wOBA >= .310, balanced profile | Connects power-heavy top to contact-heavy bottom. Solid all-around. |
 | **7** | Contact Manufacturer | K% <= 20%, AVG >= .260 | Moves runners, puts ball in play. Manufacturing in the bottom third |
 | **8** | Specialist | Defense-first, BsR > 0 | Speed to score from 1st on doubles. Lowest offensive floor |
-| **9** | Second Leadoff | OBP >= .320, BB% >= 9% | Turns lineup over to 1-2. SABR undervalues this spot |
+| **9** | Second Leadoff | OBP >= .320, BB% >= 9% | Turns lineup over to 1-2. Table-setter characteristics. |
 
-### Optimal assignment, not just sorting
+### Production first, role-fit second
 
-We use the **Hungarian algorithm** (optimal assignment) to place each player in the spot where the team's total fit is maximized. Each player gets a 0-100 fit score for every lineup position based on z-scored metrics weighted by that spot's priorities.
+Each player gets a 0-100 fit score for every lineup position based on z-scored metrics weighted by that spot's priorities. But fit scores alone produce absurd lineups — the model uses **production rank as the backbone** and role-fit adjusts within a constrained band. No good bat gets buried in a low-leverage spot.
 
-The result: a lineup card where every player is in the role that best matches their skill set, and a **gap analysis** showing which spots are well-filled (70+ fit score) and which are missing pieces (<50).
-
-### The 2025 Yankees as a live example
-
-We map the 2025 Yankees roster to the model and ask:
-- Which spots have strong fits?
-- Where are the gaps — and what type of player would fill them?
-- How does the optimal lineup differ from a naive wOBA sort?
-
-The gaps are the roster construction blueprint. A team with strong fit scores at all 9 spots has balanced production, distributed power, contact in the middle of the order, and speed where it matters. That's not a batting order — that's a **roster diagnosis**.
-
-![Lineup Gaps](outputs/figures/yankees_lineup_gaps.png)
+The result: a lineup card where production is respected AND every player is in a role that matches their skill set, plus a **gap analysis** showing which spots are well-filled (70+ fit score) and which are missing pieces (<50). The full model with a live roster application is in [Notebook 12](notebooks/12_ideal_lineup.ipynb).
 
 ---
 
