@@ -5,14 +5,16 @@
 
 Michael Fishman ran the Yankees' analytics department from 2005 to 2023. Under his leadership, the Yankees made a series of analytically-driven decisions that were demonstrably wrong — not just in hindsight, but provably wrong with data that was available at the time.
 
-This project uses **3 million pitches of Statcast data (2021-2024)**, **FanGraphs team and player statistics (2017-2024)**, and **MiLB development records** to quantify the damage across six fronts:
+This project uses **3M+ pitches of Statcast data (2021-2026)**, **FanGraphs team and player statistics (2017-2025)**, **MiLB development records**, and **Bayesian regression (PyMC/Bambi)** to quantify the damage across eight analyses:
 
 1. **Prospect Development** — Elite minor league hitters systematically collapsed at the MLB level because the pipeline didn't prepare them for MLB pitch recognition
 2. **Lineup Construction** — RH-heavy lineups at the most LHH-friendly park in baseball, because "RH hitters can just go oppo to the short porch"
 3. **Baserunning Philosophy** — Abandoned stolen bases and baserunning fundamentals, going from 7th in BsR to dead last while becoming the most HR-dependent team in baseball
 4. **Defensive Neglect** — 2nd worst OAA in baseball (2018-2021), costing 7.0 wins, then jumped to #1 DRS in 2022 proving the talent was always available
-5. **The Dawg Metric** — An original composite metric (pressure + hustle + grit) that predicts team WAR (r = +0.30) independently of offensive talent, improving playoff prediction from 82% to 87%
+5. **The Dawg Metric** — An original composite metric (pressure + hustle + grit) that predicts team WAR (r = +0.30) independently of offensive talent, validated via Bayesian regression and 10-fold CV with playoff prediction improvement from 82% to 86%
 6. **The Extremes Trap** — Oscillating between all-or-nothing sluggers (Gallo: 18.5% barrel rate, 40% K) and contactless slap hitters (IKF: 1.2% barrel rate, .650 OPS) while contenders built complete hitters
+7. **The Counter-Example** — Ben Rice proves the system was broken, not the talent: his discipline held (21% chase rate vs 31% for Volpe/Dominguez), validating the readiness gate framework
+8. **Roster Construction** — Profiling the archetypes contenders actually build (complete hitters, speed/defense specialists, platoon bats, table-setters) vs the Yankees' extreme-only approach
 
 ---
 
@@ -57,8 +59,9 @@ This isn't two isolated cases. The Yankees system repeatedly produced hitters wh
 | **Volpe** | "Best Strike-Zone Discipline" (BA), .423 OBP | Chase rate doubled, seasonal collapse pattern |
 | **Dominguez** | "Best Strike-Zone Discipline" (BA), 17.3% K rate | Chase rate doubled, breaking ball chase 41% |
 | **Peraza** | Solid AAA numbers | 35% breaking ball chase, couldn't stick |
+| **Rice** | 13.3% BB rate, Yankees MiLB POTY | **Chase rate held at 21%**, xwOBA .394 in 2025 breakout |
 
-Meanwhile, the Orioles (Henderson), Diamondbacks (Carroll), Reds (De La Cruz), and Royals (Witt Jr.) consistently translate minor league discipline to the majors.
+Rice is the counter-example that makes the failures more damning. Same system, same park — but his discipline survived the jump. Meanwhile, the Orioles (Henderson), Diamondbacks (Carroll), Reds (De La Cruz), and Royals (Witt Jr.) consistently translate minor league discipline to the majors. See [Notebook 10](notebooks/10_rice_comparison.ipynb) for the full Rice comparison.
 
 ---
 
@@ -252,7 +255,7 @@ Contenders consistently had 3-5 complete hitters. The Yankees had 1-2. That's th
 
 **Estimated total damage: ~14 wins** from baserunning, defense, and lineup construction alone. That doesn't include the prospect development failures, the October collapses, or the opportunity cost of building a one-dimensional roster in the most versatile park in baseball.
 
-The fix was always available — the 2022 team proved it. They just had an analytics department that believed in one thing: the three-run homer. And when it doesn't come, you go home in October.
+The fix was always available — the 2022 team proved it, and Ben Rice proved it again in 2025. The talent was never the problem. They just had an analytics department that believed in one thing: the three-run homer. And when it doesn't come, you go home in October.
 
 ---
 
@@ -276,14 +279,16 @@ The fix was always available — the 2022 team proved it. They just had an analy
 
 All data sourced from public [Statcast](https://baseballsavant.mlb.com) via [pybaseball](https://github.com/jldbc/pybaseball) and [FanGraphs API](https://fangraphs.com).
 
-- **3,026,120 pitches** across 2021-2024 MLB seasons
-- **FanGraphs team batting stats** (2017-2024) for baserunning and lineup analysis
-- **343 pre-debut pitches** (Spring Training / select MiLB Statcast)
-- **20 prospect profiles** with complete Statcast data (including Ben Rice as Yankees success case)
-- **FanGraphs MiLB stats** for key prospects via FanGraphs API
-- **FanGraphs team fielding stats** (2017-2024) for OAA, DRS, UZR, and Def
-- **216 team-seasons** of combined batting + fielding data for Dawg metric regression
-- **FanGraphs individual batting stats** (2021-2024) for player-level barrel%, K%, and plate discipline comparisons
+| Dataset | Volume | Coverage | Use |
+|---------|--------|----------|-----|
+| Statcast pitch-level | **3M+ pitches** | 2021-2026 | Plate discipline, whiff rates, exit velo, batted ball direction |
+| FanGraphs team batting | **240 team-seasons** | 2017-2024 | BsR, UBR, wSB, lineup handedness, HR dependency |
+| FanGraphs team fielding | **240 team-seasons** | 2017-2024 | OAA, DRS, UZR, Def |
+| FanGraphs player batting | **2,500+ player-seasons** | 2021-2025 | Barrel%, K%, BB%, wOBA, wRC+, hitter archetype classification |
+| Dawg metric regression | **216 team-seasons** | 2017-2024 | Bayesian regression, 10-fold CV, playoff prediction |
+| Prospect profiles | **20 prospects** | 2019-2026 debuts | Tools scores, translation gaps, readiness gates |
+| MiLB stats | **10 prospect careers** | 2021-2024 | BB%, K%, wOBA, wRC+ by level for pre-/post-debut comparison |
+| Pre-debut Statcast | **343 pitches** | Spring Training / MiLB | Pitch recognition calibration baseline |
 
 ## Setup
 
@@ -293,18 +298,42 @@ cd fire_fishman
 pip install -e .
 
 # Pull data (~5 min per season, cached as parquet after first run)
-python -c "from fire_fishman.data.statcast import get_statcast_pitches; get_statcast_pitches(2023); get_statcast_pitches(2024)"
+python -c "
+from fire_fishman.data.statcast import get_statcast_pitches, get_batting_stats
+for year in range(2021, 2027):
+    get_statcast_pitches(year)
+    get_batting_stats(year)
+"
 
 jupyter notebook notebooks/
 ```
 
+## Methods
+
+| Method | Application | Why |
+|--------|-------------|-----|
+| **Bayesian regression** (PyMC/Bambi) | Dawg metric → WAR relationship | Uncertainty quantification on small-ish team-season samples |
+| **Effect size analysis** (Cohen's d) | Star vs bust separation on n=20 prospects | More honest than ML classifiers at small n |
+| **10-fold cross-validation** | Dawg playoff prediction model | Standard validation; KFold with shuffle for team-season data |
+| **Z-scoring within season** | All Dawg components, tools scores | Controls for year-over-year league-wide shifts |
+| **XGBoost** (sanity check) | Feature importance for prospect translation | LOO-CV, used to confirm effect size rankings |
+| **Statcast-based readiness gates** | Prospect call-up framework | Pitch-type-specific thresholds derived from star 75th percentiles |
+| **Hitter archetype classification** | Roster construction analysis | Multi-dimensional profiling (barrel%, K%, BB%, BsR) |
+
 ## Limitations
 
 - **MiLB sample is small** (89-254 pitches from Spring Training). Directionally strong but not definitive.
-- **Prospect cohort is n=19**. Effect sizes are more honest than ML classifiers at this sample size.
+- **Prospect cohort is n=20**. Effect sizes are more honest than ML classifiers at this sample size.
 - **Handedness analysis uses 2023-2024 Statcast** — the RH-heavy era (2017-2022) was worse but we don't have full pitch-level data for those years.
 - **Baserunning estimates are conservative** — BsR captures runs above average, not the full opportunity cost of the philosophy.
+- **Rice's 2024 MLB sample is small** (~180 PA, 50 games). The 2025 full season (530 PA) is the meaningful data point.
 
 ## Tech Stack
 
-Python, pybaseball, pandas, scikit-learn, XGBoost, matplotlib, seaborn
+| | |
+|---|---|
+| **Core** | Python 3.11+, pandas 2.0+, NumPy |
+| **Data** | pybaseball (Statcast + FanGraphs API), parquet caching |
+| **Statistical modeling** | PyMC, Bambi, ArviZ (Bayesian), scikit-learn, XGBoost |
+| **Visualization** | matplotlib, seaborn |
+| **Infrastructure** | Jupyter notebooks, pip-installable package (`src/fire_fishman/`), git |
