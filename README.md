@@ -5,7 +5,7 @@
 
 Michael Fishman has run the Yankees' analytics department since 2005. Under his leadership, the Yankees have made a series of analytically-driven decisions that were demonstrably wrong — not just in hindsight, but provably wrong with data that was available at the time.
 
-This project uses **3M+ pitches of Statcast data (2021-2026)**, **FanGraphs team and player statistics (2017-2025)**, **MiLB development records**, and **Bayesian regression (PyMC/Bambi)** to quantify the damage across eight analyses:
+This project uses **3M+ pitches of Statcast data (2021-2026)**, **FanGraphs team and player statistics (2017-2025)**, **MiLB development records**, and **Bayesian regression (PyMC/Bambi)** to quantify the damage across nine analyses:
 
 1. **Prospect Development** — Elite minor league hitters systematically collapsed at the MLB level because the pipeline didn't prepare them for MLB pitch recognition
 2. **Lineup Construction** — RH-heavy lineups at the most LHH-friendly park in baseball, because "RH hitters can just go oppo to the short porch"
@@ -15,6 +15,7 @@ This project uses **3M+ pitches of Statcast data (2021-2026)**, **FanGraphs team
 6. **The Extremes Trap** — Oscillating between all-or-nothing sluggers (Gallo: 18.5% barrel rate, 40% K) and contactless slap hitters (IKF: 1.2% barrel rate, .650 OPS) while contenders built complete hitters
 7. **The Counter-Example** — Ben Rice proves the system was broken, not the talent: his discipline held (21% chase rate vs 31% for Volpe/Dominguez), validating the readiness gate framework
 8. **Roster Construction** — Profiling the archetypes contenders actually build (complete hitters, speed/defense specialists, platoon bats, table-setters) vs the Yankees' extreme-only approach
+9. **The Ideal 1-9 Lineup** — Data-driven lineup position model with role-specific fit scores, optimal assignment via Hungarian algorithm, and a live 2025 Yankees application showing gaps vs the ideal
 
 ---
 
@@ -326,6 +327,45 @@ This is the profile that Rice exemplifies. It's also the profile the Dawg metric
 
 ---
 
+## Case Study 9: The Ideal 1-9 Lineup — Beyond "Sort by wOBA"
+
+Standard sabermetric lineup construction says: put your best OBP guy first, best hitter second, sort the rest by wOBA, and don't overthink it because lineup order barely matters (~10-15 runs/season). That's true in aggregate. But the real value of a lineup model isn't finding 15 runs in the batting order — it's **diagnosing what's missing from the roster**.
+
+### Each spot has a distinct role
+
+We defined 9 lineup positions with role-specific profiles, weighted by the metrics that matter most for that spot:
+
+| Spot | Role | Key Metrics | What SABR Misses |
+|------|------|-------------|------------------|
+| **1** | Table-Setter | OBP + speed + low K% | Speed creates run expectancy that pure OBP doesn't capture |
+| **2** | Best Hitter | Highest wOBA + OBP | Agreement with SABR — your MVP bats here |
+| **3** | OBP + Power | OBP >= .340, ISO >= .180 | Not a pure slugger — needs to get on base for cleanup |
+| **4** | Cleanup | Max ISO, Barrel% >= 10% | Pure damage. This is where your biggest power bat goes |
+| **5** | Power/Contact | ISO >= .150, K% <= 25% | Contact matters — can't strand runners with K's |
+| **6** | Handedness Break | Solid all-around, opposite hand from 5 | Forces bullpen decisions. SABR ignores handedness alternation |
+| **7** | Contact Manufacturer | K% <= 20%, AVG >= .260 | Moves runners, puts ball in play. Manufacturing in the bottom third |
+| **8** | Specialist | Defense-first, BsR > 0 | Speed to score from 1st on doubles. Lowest offensive floor |
+| **9** | Second Leadoff | OBP >= .320, BB% >= 9% | Turns lineup over to 1-2. SABR undervalues this spot |
+
+### Optimal assignment, not just sorting
+
+We use the **Hungarian algorithm** (optimal assignment) to place each player in the spot where the team's total fit is maximized. Each player gets a 0-100 fit score for every lineup position based on z-scored metrics weighted by that spot's priorities.
+
+The result: a lineup card where every player is in the role that best matches their skill set, and a **gap analysis** showing which spots are well-filled (70+ fit score) and which are missing pieces (<50).
+
+### The 2025 Yankees as a live example
+
+We map the 2025 Yankees roster to the model and ask:
+- Which spots have strong fits?
+- Where are the gaps — and what type of player would fill them?
+- How does the optimal lineup differ from a naive wOBA sort?
+
+The gaps are the roster construction blueprint. A team with strong fit scores at all 9 spots has balanced production, distributed power, contact in the middle of the order, and speed where it matters. That's not a batting order — that's a **roster diagnosis**.
+
+![Lineup Gaps](outputs/figures/yankees_lineup_gaps.png)
+
+---
+
 ## The Fishman Scorecard
 
 | Bad Take | Damage | Period |
@@ -359,6 +399,7 @@ The fix was always available — the 2022 team proved it, and Ben Rice proved it
 | [09 — Dawg Metric Deep Dive](notebooks/09_dawg_metric.ipynb) | Independence test, regression, year-ahead prediction, playoff model |
 | [10 — Rice: The Counter-Example](notebooks/10_rice_comparison.ipynb) | Ben Rice vs Volpe/Dominguez/Peraza — what success looks like |
 | [11 — Ideal Role Player Profile](notebooks/11_role_player_profile.ipynb) | The anti-Gallo/anti-IKF: what complementary hitters should look like |
+| [12 — The Ideal 1-9 Lineup](notebooks/12_ideal_lineup.ipynb) | Data-driven lineup position model: optimal assignment of 2025 Yankees using Hungarian algorithm |
 
 ## Data
 
@@ -404,6 +445,7 @@ jupyter notebook notebooks/
 | **XGBoost** (sanity check) | Feature importance for prospect translation | LOO-CV, used to confirm effect size rankings |
 | **Statcast-based readiness gates** | Prospect call-up framework | Pitch-type-specific thresholds derived from star 75th percentiles |
 | **Hitter archetype classification** | Roster construction analysis | Multi-dimensional profiling (barrel%, K%, BB%, BsR) |
+| **Hungarian algorithm** | Optimal lineup assignment | Maximize total fit score across 9 lineup positions with distinct role profiles |
 
 ## Limitations
 
