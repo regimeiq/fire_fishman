@@ -3,7 +3,7 @@
 ## Quantifying Systemic Failures in Yankees Analytics (2017-2024)
 **Prospect Development, Lineup Construction, and an Original Composite Metric for Intangible Contributions**
 
-Michael Fishman ran the Yankees' analytics department from 2005 to 2023. Under his leadership, the Yankees made a series of analytically-driven decisions that were demonstrably wrong — not just in hindsight, but provably wrong with data that was available at the time.
+Michael Fishman has run the Yankees' analytics department since 2005. Under his leadership, the Yankees have made a series of analytically-driven decisions that were demonstrably wrong — not just in hindsight, but provably wrong with data that was available at the time.
 
 This project uses **3M+ pitches of Statcast data (2021-2026)**, **FanGraphs team and player statistics (2017-2025)**, **MiLB development records**, and **Bayesian regression (PyMC/Bambi)** to quantify the damage across eight analyses:
 
@@ -274,10 +274,6 @@ Rice is exactly the player profile Case Study 2 said the Yankees should build ar
 | Approach | Uses whole field, barrels the ball | Expanded zone under pressure |
 
 The readiness gate framework from Notebook 05 validates this: Rice passes more gates than Volpe, Dominguez, or Peraza. His pitch recognition survived the jump to MLB-quality breaking balls. Theirs didn't. Same org, same park, different outcome — because his development actually worked.
-
-### The timeline matters
-
-Fishman left after 2023. Rice broke out in 2025. The coaching and development philosophy may have shifted, and Rice was the first full-season beneficiary. That's not proof of causation — but it's a data point worth tracking.
 
 ![Rice vs Failures](outputs/figures/rice_vs_failures_discipline.png)
 
