@@ -5,7 +5,7 @@
 
 Michael Fishman has run the Yankees' analytics department since 2005. Under his leadership, the Yankees have made a series of analytically-driven decisions that were demonstrably wrong — not just in hindsight, but provably wrong with data that was available at the time.
 
-This project uses **3M+ pitches of Statcast data (2021-2026)**, **FanGraphs team and player statistics (2017-2025)**, **MiLB development records**, and **Bayesian regression (PyMC/Bambi)** to quantify the damage across eight analyses:
+This project uses **3M+ pitches of Statcast data (2021-2026)**, **FanGraphs team and player statistics (2017-2025)**, **MiLB development records**, and **regression analysis with cross-validation** to quantify the damage across eight analyses:
 
 1. **Prospect Development** — Elite minor league hitters systematically collapsed at the MLB level because the pipeline didn't prepare them for MLB pitch recognition
 2. **Lineup Construction** — RH-heavy lineups at the most LHH-friendly park in baseball, because "RH hitters can just go oppo to the short porch"
@@ -38,7 +38,7 @@ BsR collapsed from +7.6 (7th, 2017) to -17.2 (30th, 2024). Total: -39.2 BsR = 3.
 
 ### 5. The Dawg Metric ([Notebook 09](notebooks/09_dawg_metric.ipynb))
 
-An original composite (Pressure + Hustle + Grit, z-scored within season) that correlates with WAR (r = +0.30, year-ahead r = +0.22) independently of offensive talent (r = +0.09 vs wRC+). Validated via Bayesian regression and 10-fold CV. The Yankees ranked bottom-third for most of 2017-2024.
+An original composite (Pressure + Hustle + Grit, z-scored within season) that correlates with WAR (r = +0.30, year-ahead r = +0.22) independently of offensive talent (r = +0.09 vs wRC+). Validated via linear regression with 10-fold CV (Bayesian regression via Bambi available for uncertainty quantification). The Yankees ranked bottom-third for most of 2017-2024.
 
 ### 6. The Extremes Trap ([Notebooks 08, 11](notebooks/))
 
@@ -127,7 +127,7 @@ jupyter notebook notebooks/
 
 | Method | Application | Why |
 |--------|-------------|-----|
-| **Bayesian regression** (PyMC/Bambi) | Dawg metric → WAR relationship | Uncertainty quantification on small-ish team-season samples |
+| **Linear regression + Bayesian** (sklearn, Bambi/PyMC) | Dawg metric → WAR relationship | Frequentist with 10-fold CV as primary; Bayesian (Bambi) for uncertainty quantification (requires Python 3.10+) |
 | **Effect size analysis** (Cohen's d) | Star vs bust separation on n=20 prospects | More honest than ML classifiers at small n |
 | **10-fold cross-validation** | Dawg playoff prediction model | Standard validation; KFold with shuffle for team-season data |
 | **Z-scoring within season** | All Dawg components, tools scores | Controls for year-over-year league-wide shifts |
