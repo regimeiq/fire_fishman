@@ -19,323 +19,43 @@ This project uses **3M+ pitches of Statcast data (2021-2026)**, **FanGraphs team
 
 ---
 
-## Case Study 1: The Prospect Pipeline Is Broken
+## Key Findings
 
-Anthony Volpe and Jasson Dominguez were the Yankees' two highest-profile prospects in a generation. Both had elite physical tools. Both had strong minor league track records. Both collapsed at the MLB level.
+### 1. The Prospect Pipeline ([Notebooks 01-07, 10](notebooks/))
 
-### The discipline was real — MLB broke it
+Volpe and Dominguez had elite minor league discipline — both won BA's "Best Strike-Zone Discipline" — then collapsed at the MLB level. Chase rates doubled for both. Meanwhile, Rice (12th-round pick, 14.8% MiLB BB rate) held his chase rate at 23% and broke out in 2025. The pattern suggests a systemic development issue, not individual talent failures. Across a cohort of 19 prospects, the metrics that separate stars from busts are pitch-type-specific (offspeed chase d = -0.75, fastball whiff d = -0.67) — not aggregate whiff or zone contact.
 
-Both prospects had elite plate discipline in the minors. FanGraphs data confirms it: Volpe posted a 15.2% BB rate and sub-20% K rate across A/A+ in 2021 (.449 wOBA, 171 wRC+). Dominguez walked at a 15.3% clip in AA/AAA in 2023. These are star-caliber numbers.
+### 2. The Short Porch Disaster ([Notebook 08](notebooks/08_fishman_case_studies.ipynb))
 
-Against MLB pitching, both collapsed:
+LHH pull hitters are 2.1x more productive per PA to Yankee Stadium's 314-foot right field porch than RHH oppo hitters (2.85% vs 1.36% HR rate to RF, 2023-2024 Statcast). Under Fishman, the Yankees built RH-heavy lineups and gave away the handedness diversity advantage for free.
 
-| Metric | Volpe MiLB | Volpe MLB | Dominguez MiLB | Dominguez MLB |
-|--------|-----------|-----------|----------------|---------------|
-| Chase rate | 15.0% | 30.6% | 17.8% | 31.1% |
-| Chase rate (breaking) | 16.7% | 33.0% | 27.3% | 41.3% |
-| Chase rate (offspeed) | 29.4% | 39.2% | 20.0% | 39.5% |
+### 3. Baserunning: 7th to Dead Last ([Notebook 08](notebooks/08_fishman_case_studies.ipynb))
 
-The issue isn't talent — it's **calibration**. Their pitch recognition was trained on minor league stuff. MLB breaking balls break later, tunnel better, and are sequenced by data-driven staffs. The Yankees let their prospects calibrate on the job instead of pre-training them.
+BsR collapsed from +7.6 (7th, 2017) to -17.2 (30th, 2024). Total: -39.2 BsR = 3.9 wins lost. The UBR collapse (extra base taking: +9.7 → -10.9) is worse than the stolen base issue — this is a team that can't run the bases under any circumstances.
 
-Compare to Henderson: 30.9% K rate in A-ball dropped to 23.1% in AA/AAA with a 15.7% BB rate. He solved pitch recognition *before* his call-up. Volpe's K% flatlined at ~20% — the traditional stats looked great while hiding the pitch recognition ceiling.
+### 4. Defensive Neglect: 7.0 Wins Lost ([Notebook 08](notebooks/08_fishman_case_studies.ipynb))
 
-![MiLB vs MLB](outputs/figures/milb_vs_mlb.png)
+2nd worst OAA in baseball (2018-2021), -70.3 Def runs = 7.0 wins lost. Then 2022: jumped to #1 DRS. The talent was always available — they just chose not to prioritize it. The 2022 team proves you can fix defense overnight, but they never fixed baserunning (Hustle = -0.98, worst among top-10 Dawg teams).
 
-### What separates stars from busts (n=19)
+### 5. The Dawg Metric ([Notebook 09](notebooks/09_dawg_metric.ipynb))
 
-| Metric | Stars | Busts | Effect Size |
-|--------|-------|-------|-------------|
-| Chase rate on offspeed | 38.2% | 42.1% | d = -0.75 |
-| Whiff rate vs 96+ mph | 18.6% | 23.8% | d = -0.67 |
-| Chase rate on breaking balls | 33.2% | 36.0% | d = -0.64 |
+An original composite (Pressure + Hustle + Grit, z-scored within season) that correlates with WAR (r = +0.30, year-ahead r = +0.22) independently of offensive talent (r = +0.09 vs wRC+). Validated via Bayesian regression and 10-fold CV. The Yankees ranked bottom-third for most of 2017-2024.
 
-Overall whiff rate (d = -0.08) and zone contact rate (d = -0.02) show almost no separation. **The aggregate metrics hide the signal.**
+### 6. The Extremes Trap ([Notebooks 08, 11](notebooks/))
 
-### The pattern points to the system
+Gallo (37.7% K, 84 wRC+) and IKF (1.0% barrel, 84 wRC+) — opposite extremes, same result. Contenders carried 3-5 "complete hitters" (K% < 25%, Barrel% > 6%, BB% > 8%). The Yankees had 1-2. The roster construction philosophy acquired extremes instead of building balance.
 
-This isn't two isolated cases. Multiple Yankees prospects won minor league discipline awards and then collapsed at the MLB level — while other organizations with similar-caliber prospects consistently translated that discipline:
+### 7. The Diamond in the Rough ([Notebook 10](notebooks/10_rice_comparison.ipynb))
 
-| Player | MiLB Discipline | MLB Result |
-|--------|----------------|------------|
-| **Volpe** | "Best Strike-Zone Discipline" (BA), .423 OBP | Chase rate doubled, seasonal collapse pattern |
-| **Dominguez** | "Best Strike-Zone Discipline" (BA), 17.3% K rate | Chase rate doubled, breaking ball chase 41% |
-| **Peraza** | Solid AAA numbers | 35% breaking ball chase, couldn't stick |
-| **Rice** | 14.8% BB rate, Yankees MiLB POTY | **Chase rate held at 23%**, 15.4% barrel rate in 2025 breakout |
+Rice (chase 23.4%, barrel 15.4%) vs Volpe (chase 29.5%, barrel 10.5%) vs Dominguez (chase 33.1%, barrel 7.0%). Same org, same park — wildly different outcomes. Rice passes 5/5 readiness gates; Dominguez passes 2/5. The prospects they invested the most in collapsed; the lower-profile guy figured it out.
 
-Rice is the counter-example that makes the failures more damning. Same system, same park — but his discipline survived the jump. Meanwhile, the Orioles (Henderson), Diamondbacks (Carroll), Reds (De La Cruz), and Royals (Witt Jr.) consistently translate minor league discipline to the majors. See [Notebook 10](notebooks/10_rice_comparison.ipynb) for the full Rice comparison.
+### 8. Roster Construction ([Notebook 11](notebooks/11_role_player_profile.ipynb))
 
----
+Contenders carry distinct archetypes (stars, complete hitters, speed/defense specialists, platoon bats, table-setters). The Yankees filled 3+ spots with the same extreme. The Dodgers consistently carried 4-5 complete hitters to the Yankees' 1-2.
 
-## Case Study 2: The Short Porch Disaster
+### 9. Lineup Gap Analysis ([Notebook 12](notebooks/12_ideal_lineup.ipynb))
 
-Yankee Stadium's right field porch is 314 feet — one of the shortest in baseball. Left-handed pull hitters are the natural exploiters of this dimension. Under Fishman, the Yankees insisted right-handed hitters could just go opposite field to take advantage. They built RH-heavy lineups and played home run ball — without the handedness to exploit their own park.
-
-### LHH pull power dominates RHH oppo power at Yankee Stadium
-
-At Yankee Stadium (2023-2024 Statcast):
-
-| Metric | LHH Pull | RHH Oppo |
-|--------|----------|----------|
-| HRs to right field | **153** | 108 |
-| HR rate to RF per PA | **2.85%** | 1.36% |
-| Avg exit velocity | 103.7 mph | 101.9 mph |
-| Avg distance | 387 ft | 370 ft |
-
-**LHH are 2.1x more productive per PA to the short porch.** RHH oppo HRs are lower-exit-velo, shorter-distance, and less repeatable. Pull power is a skill; oppo power is a fluke.
-
-### Pitchers loved the all-RH lineup
-
-When 7 right-handed hitters are in the lineup 1-9, pitchers only need one gameplan. No adjustment between LHH and RHH sequencing, no flipping pitch tunnels, no changing release angle approaches. Lineup diversity is a competitive advantage the Yankees gave away for free.
-
-![Short Porch](outputs/figures/short_porch_handedness.png)
-
----
-
-## Case Study 3: The Baserunning Disaster
-
-Under Boone and Fishman's analytics, the Yankees abandoned baserunning as a competitive tool. They didn't steal, didn't take extra bases, and made terrible decisions on the bases.
-
-### BsR collapse: 7th to dead last
-
-| Year | BsR | Rank | SB | UBR | wSB |
-|------|-----|------|----|-----|-----|
-| 2017 | +7.6 | 7th | 90 | +0.7 | +4.7 |
-| 2018 | +1.9 | 13th | 63 | +9.7 | +0.4 |
-| 2019 | -2.1 | 16th | 55 | +0.2 | -1.8 |
-| 2020 | -0.2 | 15th | 27 | +6.9 | +0.6 |
-| 2021 | -3.9 | 20th | 63 | -3.7 | +0.0 |
-| 2022 | -6.2 | 24th | 102 | -8.7 | +1.2 |
-| 2023 | -11.5 | 29th | 100 | -8.5 | -3.0 |
-| 2024 | -17.2 | **30th** | 88 | -10.9 | -5.2 |
-
-**Total BsR (2018-2024): -39.2 runs = 3.9 wins lost** to bad baserunning alone.
-
-### Not just slow — fundamentally bad
-
-The UBR (extra base taking) collapse is worse than the stolen base issue. UBR went from +9.7 (2018) to -10.9 (2024). This captures getting thrown out on the bases, failing to advance on balls in dirt, missing first-to-third opportunities. This isn't "we don't have fast guys" — this is a team that can't run the bases under any circumstances.
-
-### HR or nothing
-
-The Yankees were the **#1 most HR-dependent team** in 2018, 2022, and 2023. When you don't steal, don't take extra bases, and don't have lefty power to exploit your own park, you're left waiting for a home run. When they don't come — postseason, good pitching — there's no Plan B.
-
-![Baserunning](outputs/figures/baserunning_disaster.png)
-
----
-
-## Case Study 4: The Defensive Disaster
-
-The same analytics department that ignored baserunning and lineup construction also neglected defense. From 2018-2021, the Yankees had the **2nd worst OAA in baseball** — worse than tanking teams.
-
-| Year | DRS | OAA | Def | DRS Rank |
-|------|-----|-----|-----|----------|
-| 2017 | +29 | +19 | +19.1 | 12th |
-| 2018 | +36 | **-36** | -10.6 | 9th |
-| 2019 | -14 | **-38** | -28.0 | 20th |
-| 2020 | -1 | -9 | -5.4 | 21st |
-| 2021 | -41 | -22 | -26.3 | 27th |
-| 2022 | **+124** | +21 | +57.7 | **1st** |
-| 2023 | +29 | +2 | +16.9 | 10th |
-| 2024 | +31 | +10 | +35.3 | 12th |
-
-**Total Def (2018-2021): -70.3 runs = 7.0 wins lost.** Then 2022 happened and they jumped to #1 in DRS. The talent to play defense was always available — they just chose not to prioritize it for 4 years.
-
-### The October problem: no dawg, no Plan B
-
-The teams that beat the Yankees in October all excelled at exactly what Fishman's analytics ignored:
-
-- **2018**: Red Sox (Def +38.6) beat Yankees (Def -10.6) in ALDS
-- **2019**: Astros (Def +34.8) beat Yankees (Def -28.0) in ALCS
-- **2022**: Astros swept Yankees in ALCS despite NYY having better Def (+57.7 vs +35.2) and Dawg (#3 vs #15) — but the Yankees' Hustle was -0.98. They couldn't manufacture runs when Houston's pitching shut down the long ball.
-- **2024**: Dodgers (Dawg #3) beat Yankees (Dawg #25) in WS 4-1
-
-You can't out-homer elite pitchers for 7 games. When the HRs stop, you need other ways to win — speed, defense, lineup diversity, clutch hitting. Even in 2022, the Yankees' best Dawg year, the missing Hustle component was the difference. Only Stanton consistently shows up in October.
-
-![Defense & Dawg](outputs/figures/defense_and_dawg.png)
-
-### The 2022 paradox: why 99 wins still got swept
-
-The 2022 Yankees are the obvious counterargument — they fixed defense (#1 DRS), showed up in the clutch (Pressure +1.98), and won 99 games. But they never fixed baserunning. Their Hustle component was **-0.98**, the worst of any top-10 Dawg team in the entire 2017-2024 dataset. They were also the **#1 most HR-dependent team** in baseball (31.5% of runs via HR).
-
-The first half masked the problem: 64-28 (.696), a 117-win pace. The second half revealed it: 35-35 (.500). Then came the ALCS against Houston's elite pitching:
-
-| Stat | Yankees | Astros |
-|------|---------|--------|
-| Runs per game | 1.8 | 4.5 |
-| Runs via HR | ~4 | ~3 |
-| Runs manufactured (non-HR) | **3** | **15** |
-
-Houston manufactured 15 runs without the home run. The Yankees managed 3. That's what Hustle = -0.98 looks like in October: can't steal, can't take extra bases, can't advance on balls in dirt. When the HR dries up, the offense dies.
-
-The 2022 team proved you can fix Grit (defense) overnight — just prioritize it. But Hustle (baserunning philosophy) was never addressed under Fishman. That's not a talent problem. It's an analytics philosophy problem.
-
-![2022 Paradox](outputs/figures/2022_paradox.png)
-
----
-
-## Case Study 5: The Dawg Metric — Quantifying Heart
-
-We built an original composite metric to measure what the Fishman Yankees never valued: clutch execution, baserunning aggression, and defensive effort.
-
-### Formula
-
-```
-Dawg = 0.30 × Pressure + 0.35 × Hustle + 0.35 × Grit
-
-Pressure = z(+WPA) + z(-WPA, flipped) / 2    — step up vs choke
-Hustle   = z(UBR) + z(BsR) / 2               — extra bases, aggression
-Grit     = z(OAA)                            — making plays in the field
-```
-
-All components z-scored within each season. Hustle and Grit weighted higher (35% each) because they're **controllable** — effort and philosophy, not luck.
-
-### It's independent of talent, but predicts winning
-
-| Test | Result | Note |
-|------|--------|------|
-| Dawg vs wRC+ (offensive talent) | r = +0.09 (not significant) | Independent of offensive talent |
-| Dawg vs WAR (same-year) | r = +0.30 (p < 0.0001) | In-sample; 10-fold CV |
-| R² improvement (wRC+ alone → +Dawg) | 59.0% → 64.5% (+5.4pp) | Same-year regression |
-| **Year-ahead: Dawg → next year WAR** | **r = +0.22 (p = 0.003)** | **True out-of-sample** |
-| Playoff prediction accuracy (10-fold CV) | 82.4% → 86.6% with Dawg | In-sample CV; proxy = top-12 WAR teams |
-
-The strongest validation is the year-ahead correlation: this year's Dawg is associated with r = +0.22 of *next* year's WAR. Same-year, +1 SD of Dawg is associated with ~4.0 additional team WAR — but that's a correlation, not a causal claim. Still, this is independent of offensive talent and it's exactly what Fishman's analytics department ignored for a decade.
-
-### Grit is the most persistent component
-
-OAA (defensive effort) is the most year-over-year stable component (r = +0.19, p = 0.009), meaning teams that invest in defense maintain that edge. The Yankees chose not to invest for 4 years.
-
-![Dawg Independence](outputs/figures/dawg_independence.png)
-![Dawg Predictions](outputs/figures/dawg_predictions.png)
-
----
-
-## Case Study 6: The Extremes Trap — Gallo, IKF, and the Complete Hitter Gap
-
-Fishman's analytics department couldn't find the middle ground between power and contact. They acquired Joey Gallo (elite barrel rate, 40% K rate) as a bet that Yankee Stadium would unlock his pull power. When that failed, they over-corrected with Isiah Kiner-Falefa (low K%, but 1.2% barrel rate and weak grounders). Both were expressions of the same blind spot: buying **output metrics** without demanding the **process** (pitch recognition, chase rate, adaptability) that makes them sustainable.
-
-### The extremes, side by side
-
-| Metric | Gallo (NYY) | IKF (NYY) | Contender median |
-|--------|-------------|-----------|------------------|
-| K% | 37.7% | 16.1% | 20.3% |
-| BB% | 15.0% | 6.6% | 9.1% |
-| Barrel% | 8.1% | 1.0% | 9.3% |
-| wRC+ | 84 | 84 | 117 |
-
-Contender median = median qualified starter on HOU/LAD/ATL (2021-2023, n=97). Gallo's K% was nearly double the contender baseline. IKF's barrel rate was 1/9th of what contenders expected from a starter. Both ended up at 84 wRC+ — opposite extremes, same result.
-
-Note: Gallo brought solid defense (positive OAA in the outfield), so he wasn't zero-value. The failure was the acquisition *thesis* — that his power profile would translate at Yankee Stadium — and the inability to course-correct without lurching to the opposite extreme.
-
-### The balanced hitter gap
-
-Defining a "sweet spot" hitter as K% < 25%, Barrel% > 6%, BB% > 8% (can hit for power, controls the zone, walks):
-
-| Year | Yankees | Astros | Dodgers | Braves |
-|------|---------|--------|---------|--------|
-| 2021 | **1** of 11 | 5 of 10 | 5 of 11 | 3 of 9 |
-| 2022 | **1** of 11 | 4 of 10 | 5 of 10 | 4 of 12 |
-| 2023 | **2** of 10 | 3 of 12 | 4 of 12 | 5 of 11 |
-
-Contenders consistently had 3-5 complete hitters. The Yankees had 1-2. That's the Fishman roster construction philosophy: acquire extremes instead of building balance.
-
-![Extremes Trap](outputs/figures/extremes_trap.png)
-
----
-
-## Case Study 7: The Diamond in the Rough — Why Did Rice Succeed Where the Blue Chips Failed?
-
-Jasson Dominguez was the biggest international signing in Yankees history — "the next Mickey Mantle." Anthony Volpe was a 1st-round pick ranked top-5 in baseball. The organization poured years of development resources, coaching attention, and spotlight into both. Neither has hit at the MLB level.
-
-Ben Rice was a 12th-round pick — about as far from a blue-chip prospect as you can get. Lower profile, less fanfare, less organizational investment. He's the one who figured it out. That's not a story about a broken system — it's a harder question: **why did the diamond in the rough succeed while the crown jewels didn't?**
-
-### The discipline held
-
-Rice debuted in 2024 with ugly surface stats (.171 AVG in 50 games), but the underlying pitch recognition told a different story. Career MLB averages from Statcast:
-
-| Metric | Rice (career MLB) | Volpe (career MLB) | Dominguez (career MLB) |
-|--------|-------------------|-------------------|----------------------|
-| Chase rate | **23.4%** | 29.5% | 33.1% |
-| Whiff rate | **21.7%** | 23.0% | 24.6% |
-| Zone contact | **88.3%** | 84.5% | 86.4% |
-| Barrel% (2025) | **15.4%** | 10.5% | 7.0% |
-
-Rice's chase rate (23.4%) is elite — he's not expanding the zone under MLB-quality stuff. Volpe and Dominguez both chase nearly 10 percentage points more. Rice's barrel rate (15.4%) is nearly 50% higher than Volpe's and over double Dominguez's, meaning he's not just making contact — he's driving the ball.
-
-### The short porch connection
-
-Rice is exactly the player profile Case Study 2 said the Yankees should build around: a left-handed hitter who can use the whole field and lets Yankee Stadium's 314-foot right field porch work for him when the pitch is there. He's not one-dimensional — he goes oppo when the situation calls for it and pulls when a pitcher leaves one over the plate. That's a complete hitter, not a pull machine.
-
-### What Rice did differently
-
-| Dimension | Rice | Volpe | Dominguez |
-|-----------|------|-------|-----------|
-| MiLB BB% | 14.8% | 10.9% | 8.8% |
-| MLB chase rate | **23.4%** | 29.5% | 33.1% |
-| Breaking ball chase | Controlled (24.9%) | Borderline (33.0%) | Exploited (47.4%) |
-| Readiness gates passed | **5/5** | 4/5 | 2/5 |
-
-The readiness gate framework from Notebook 05 validates this: Rice passes more gates than Volpe, Dominguez, or Peraza. His pitch recognition survived the jump to MLB-quality breaking balls. Theirs didn't.
-
-### The question the front office can't dodge
-
-Same org, same park, same analytics department — but wildly different outcomes. Were the blue chips over-coached? Over-pressured? Given a development track that optimized for the wrong things? Or did Rice succeed precisely *because* nobody was watching — left alone to develop his natural approach while the organization obsessed over its marquee names?
-
-Either way, it's damning: the prospects they invested the most in are the ones who collapsed, and the lower-profile guy they weren't building the franchise around is the one producing. That's not bad luck — that's a development philosophy question.
-
-![Rice vs Failures](outputs/figures/rice_vs_failures_discipline.png)
-
----
-
-## Case Study 8: Roster Construction — Build Complete, Not Extreme
-
-The Gallo/IKF problem from Case Study 6 wasn't just about two bad acquisitions. It was a philosophy: the Yankees consistently filled roster spots with extreme archetypes instead of building a balanced lineup. Contenders don't do this.
-
-### The roster blueprint
-
-Every contending team carries a mix of roles:
-
-| Role | Spots | Key Traits | What They Give Up |
-|------|-------|------------|-------------------|
-| **The Star** | 1-2 | Elite in everything | Nothing — they do it all |
-| **The Complete Hitter** | 3-4 | Barrel + contact + walks + baserunning | Ceiling (they're .310-.350 wOBA, not .400) |
-| **The Speed/Defense Specialist** | 1 | Elite defense, runs the bases, makes enough contact | Power — sub-5% barrel rate is fine if they're +15 OAA |
-| **The Power Platoon** | 1 | Mashes one side, high barrel rate | Contact and playing time — sits vs same-side arms |
-| **The Table-Setter** | 1 | High OBP, sees pitches, controls the zone | Power — they walk and single, not homer |
-
-Specialists are fine — a speed+defense guy, a power platoon bat, a high-OBP table-setter. The mistake is when 3+ roster spots are filled by the same extreme. Two power bats are fine if you have speed elsewhere. Two speed guys are fine if you have power elsewhere. **Three Gallos or three IKFs = broken.**
-
-### The Yankees' archetype gap
-
-Defining a "complete hitter" as K% < 25%, Barrel% > 6%, BB% > 8%, wOBA > .310 — not star numbers, just baseline competence:
-
-| Year | Yankees Complete | Dodgers Complete | Astros Complete | Yankees Extremes |
-|------|----------------|-----------------|-----------------|------------------|
-| 2021 | **1** | 5 | 5 | 2 slugger + 1 contact |
-| 2022 | **1** | 5 | 4 | 2 slugger + 2 contact |
-| 2023 | **2** | 4 | 3 | 1 slugger + 1 contact |
-| 2024 | **2** | 5 | 3 | 1 slugger + 0 contact |
-
-The Dodgers consistently carry 4-5 complete hitters. The Yankees have 1-2 and fill the rest with extremes. The problem isn't that they acquired Gallo or IKF specifically — it's that the roster construction philosophy never had room for balanced, multi-tool role players.
-
-### The anti-extreme: what a balanced role player looks like
-
-The ideal complementary hitter doesn't need to be elite at everything. They just need to not be one-dimensional:
-
-- **Makes contact** (K% < 22%): Can move runners, execute with 2 strikes
-- **Has some barrel** (Barrel% > 6%): Not an empty batting average
-- **Takes walks** (BB% > 8%): Gets on base, works counts
-- **Uses the whole field**: Not locked into one approach
-- **Can run** (BsR > 0): Doesn't clog the bases
-
-This is the profile that Rice exemplifies. It's also the profile the Dawg metric rewards — complete hitters run the bases (Hustle), produce in leverage situations because they have multiple ways to beat you (Pressure), and a lineup full of balanced hitters creates more competitive at-bats than a lineup of extremes waiting for a three-run homer.
-
-![Hitter Spectrum](outputs/figures/hitter_spectrum.png)
-
----
-
-## Case Study 9: The Ideal 1-9 Lineup
-
-Using standard SABR lineup principles, we built a lineup position model with role-specific fit scores (0-100) for each spot 1-9, then applied it to real rosters as a **gap analysis** — diagnosing which spots are well-filled and which archetypes are missing. The full model is in [Notebook 12](notebooks/12_ideal_lineup.ipynb).
+A SABR-based lineup position model with role-specific fit scores (0-100). Applied to the 2025 Yankees, Judge is the best fit for 8 of 9 lineup spots — diagnostic proof that the roster lacks distinct archetypes.
 
 ---
 
@@ -374,7 +94,7 @@ The fix was always available — the 2022 team proved it, and Ben Rice proved it
 | [09 — Dawg Metric Deep Dive](notebooks/09_dawg_metric.ipynb) | Independence test, regression, year-ahead prediction, playoff model |
 | [10 — Rice: The Counter-Example](notebooks/10_rice_comparison.ipynb) | Ben Rice vs Volpe/Dominguez/Peraza — what success looks like |
 | [11 — Ideal Role Player Profile](notebooks/11_role_player_profile.ipynb) | The anti-Gallo/anti-IKF: what complementary hitters should look like |
-| [12 — The Ideal 1-9 Lineup](notebooks/12_ideal_lineup.ipynb) | SABR-based lineup position model with role-specific fit scores (under development) |
+| [12 — The Ideal 1-9 Lineup](notebooks/12_ideal_lineup.ipynb) | SABR-based lineup position model: fit scores and gap analysis for 2025 Yankees |
 
 ## Data
 
@@ -420,7 +140,7 @@ jupyter notebook notebooks/
 | **XGBoost** (sanity check) | Feature importance for prospect translation | LOO-CV, used to confirm effect size rankings |
 | **Statcast-based readiness gates** | Prospect call-up framework | Pitch-type-specific thresholds derived from star 75th percentiles |
 | **Hitter archetype classification** | Roster construction analysis | Multi-dimensional profiling (barrel%, K%, BB%, BsR) |
-| **Lineup role-fit scoring** | Gap analysis for lineup construction | Role-specific fit scores (0-100) for each lineup position; under development |
+| **Lineup role-fit scoring** | Gap analysis for lineup construction | Role-specific fit scores (0-100) for each lineup position; league-wide z-scoring |
 
 ## Limitations
 
