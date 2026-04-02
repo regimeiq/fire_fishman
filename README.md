@@ -89,7 +89,6 @@ The fix was always available — the 2022 team proved it, and Ben Rice proved it
 | [09 — Dawg Metric Deep Dive](notebooks/09_dawg_metric.ipynb) | Independence test, regression, year-ahead prediction, playoff model |
 | [10 — Rice: The Counter-Example](notebooks/10_rice_comparison.ipynb) | Ben Rice vs Volpe/Dominguez/Peraza — what success looks like |
 | [11 — Ideal Role Player Profile](notebooks/11_role_player_profile.ipynb) | The anti-Gallo/anti-IKF: what complementary hitters should look like |
-| [12 — The Ideal 1-9 Lineup](notebooks/12_ideal_lineup.ipynb) | Lineup position model (experimental, not included in main analysis) |
 
 ## Data
 
