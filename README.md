@@ -5,7 +5,7 @@
 
 Michael Fishman has run the Yankees' analytics department since 2005. Under his leadership, the Yankees have made a series of analytically-driven decisions that were demonstrably wrong — not just in hindsight, but provably wrong with data that was available at the time.
 
-This project uses **3M+ pitches of Statcast data (2021-2026)**, **FanGraphs team and player statistics (2017-2025)**, **MiLB development records**, and **Bayesian regression (PyMC/Bambi)** to quantify the damage across nine analyses:
+This project uses **3M+ pitches of Statcast data (2021-2026)**, **FanGraphs team and player statistics (2017-2025)**, **MiLB development records**, and **Bayesian regression (PyMC/Bambi)** to quantify the damage across eight analyses:
 
 1. **Prospect Development** — Elite minor league hitters systematically collapsed at the MLB level because the pipeline didn't prepare them for MLB pitch recognition
 2. **Lineup Construction** — RH-heavy lineups at the most LHH-friendly park in baseball, because "RH hitters can just go oppo to the short porch"
@@ -15,7 +15,6 @@ This project uses **3M+ pitches of Statcast data (2021-2026)**, **FanGraphs team
 6. **The Extremes Trap** — Oscillating between all-or-nothing sluggers (Gallo: 18.5% barrel rate, 40% K) and contactless slap hitters (IKF: 1.2% barrel rate, .650 OPS) while contenders built complete hitters
 7. **The Diamond in the Rough** — A 12th-round pick holds his discipline (21% chase rate) while the "next Mickey Mantle" and a 1st-rounder both collapse at 31% — why did the org's least-hyped prospect succeed where the blue chips failed?
 8. **Roster Construction** — Profiling the archetypes contenders actually build (complete hitters, speed/defense specialists, platoon bats, table-setters) vs the Yankees' extreme-only approach
-9. **The Ideal 1-9 Lineup** — SABR-based lineup position model with role-specific fit scores, applied to real rosters as a gap analysis tool
 
 ---
 
@@ -52,10 +51,6 @@ Rice (chase 23.4%, barrel 15.4%) vs Volpe (chase 29.5%, barrel 10.5%) vs Domingu
 ### 8. Roster Construction ([Notebook 11](notebooks/11_role_player_profile.ipynb))
 
 Contenders carry distinct archetypes (stars, complete hitters, speed/defense specialists, platoon bats, table-setters). The Yankees filled 3+ spots with the same extreme. The Dodgers consistently carried 4-5 complete hitters to the Yankees' 1-2.
-
-### 9. Lineup Gap Analysis ([Notebook 12](notebooks/12_ideal_lineup.ipynb))
-
-A SABR-based lineup position model with role-specific fit scores (0-100). Anchor Judge at #2 (he's generational, he fits everywhere) and the diagnostic question becomes: what does the rest of the roster look like? The gap analysis reveals which lineup roles lack a clean fit and where the archetype depth is thin.
 
 ---
 
@@ -94,7 +89,7 @@ The fix was always available — the 2022 team proved it, and Ben Rice proved it
 | [09 — Dawg Metric Deep Dive](notebooks/09_dawg_metric.ipynb) | Independence test, regression, year-ahead prediction, playoff model |
 | [10 — Rice: The Counter-Example](notebooks/10_rice_comparison.ipynb) | Ben Rice vs Volpe/Dominguez/Peraza — what success looks like |
 | [11 — Ideal Role Player Profile](notebooks/11_role_player_profile.ipynb) | The anti-Gallo/anti-IKF: what complementary hitters should look like |
-| [12 — The Ideal 1-9 Lineup](notebooks/12_ideal_lineup.ipynb) | SABR-based lineup position model: fit scores and gap analysis for 2025 Yankees |
+| [12 — The Ideal 1-9 Lineup](notebooks/12_ideal_lineup.ipynb) | Lineup position model (experimental, not included in main analysis) |
 
 ## Data
 
@@ -140,7 +135,6 @@ jupyter notebook notebooks/
 | **XGBoost** (sanity check) | Feature importance for prospect translation | LOO-CV, used to confirm effect size rankings |
 | **Statcast-based readiness gates** | Prospect call-up framework | Pitch-type-specific thresholds derived from star 75th percentiles |
 | **Hitter archetype classification** | Roster construction analysis | Multi-dimensional profiling (barrel%, K%, BB%, BsR) |
-| **Lineup role-fit scoring** | Gap analysis for lineup construction | Role-specific fit scores (0-100) for each lineup position; league-wide z-scoring |
 
 ## Limitations
 
