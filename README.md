@@ -5,13 +5,14 @@
 
 Michael Fishman ran the Yankees' analytics department from 2005 to 2023. Under his leadership, the Yankees made a series of analytically-driven decisions that were demonstrably wrong — not just in hindsight, but provably wrong with data that was available at the time.
 
-This project uses **1.5 million pitches of Statcast data**, **FanGraphs team and player statistics (2017-2024)**, and **MiLB development records** to quantify the damage across five fronts:
+This project uses **3 million pitches of Statcast data (2021-2024)**, **FanGraphs team and player statistics (2017-2024)**, and **MiLB development records** to quantify the damage across six fronts:
 
 1. **Prospect Development** — Elite minor league hitters systematically collapsed at the MLB level because the pipeline didn't prepare them for MLB pitch recognition
 2. **Lineup Construction** — RH-heavy lineups at the most LHH-friendly park in baseball, because "RH hitters can just go oppo to the short porch"
 3. **Baserunning Philosophy** — Abandoned stolen bases and baserunning fundamentals, going from 7th in BsR to dead last while becoming the most HR-dependent team in baseball
 4. **Defensive Neglect** — 2nd worst OAA in baseball (2018-2021), costing 7.0 wins, then jumped to #1 DRS in 2022 proving the talent was always available
 5. **The Dawg Metric** — An original composite metric (pressure + hustle + grit) that predicts team WAR (r = +0.30) independently of offensive talent, improving playoff prediction from 82% to 87%
+6. **The Extremes Trap** — Oscillating between all-or-nothing sluggers (Gallo: 18.5% barrel rate, 40% K) and contactless slap hitters (IKF: 1.2% barrel rate, .650 OPS) while contenders built complete hitters
 
 ---
 
@@ -204,6 +205,39 @@ OAA (defensive effort) is the most year-over-year stable component (r = +0.19, p
 
 ---
 
+## Case Study 6: The Extremes Trap — Gallo, IKF, and the Complete Hitter Gap
+
+Fishman's analytics department couldn't find the middle ground between power and contact. They acquired Joey Gallo (elite barrel rate, 40% K rate) as a bet that Yankee Stadium would unlock his pull power. When that failed, they over-corrected with Isiah Kiner-Falefa (low K%, but 1.2% barrel rate and weak grounders). Both were expressions of the same blind spot: buying **output metrics** without demanding the **process** (pitch recognition, chase rate, adaptability) that makes them sustainable.
+
+### The extremes, side by side
+
+| Metric | Gallo (NYY) | IKF (NYY) | Contender median |
+|--------|-------------|-----------|------------------|
+| K% | 37.7% | 16.1% | 20.3% |
+| BB% | 15.0% | 6.6% | 9.1% |
+| Barrel% | 8.1% | 1.0% | 9.3% |
+| wRC+ | 84 | 84 | 117 |
+
+Contender median = median qualified starter on HOU/LAD/ATL (2021-2023, n=97). Gallo's K% was nearly double the contender baseline. IKF's barrel rate was 1/9th of what contenders expected from a starter. Both ended up at 84 wRC+ — opposite extremes, same result.
+
+Note: Gallo brought solid defense (positive OAA in the outfield), so he wasn't zero-value. The failure was the acquisition *thesis* — that his power profile would translate at Yankee Stadium — and the inability to course-correct without lurching to the opposite extreme.
+
+### The balanced hitter gap
+
+Defining a "sweet spot" hitter as K% < 25%, Barrel% > 6%, BB% > 8% (can hit for power, controls the zone, walks):
+
+| Year | Yankees | Astros | Dodgers | Braves |
+|------|---------|--------|---------|--------|
+| 2021 | **1** of 11 | 5 of 10 | 5 of 11 | 3 of 9 |
+| 2022 | **1** of 11 | 4 of 10 | 5 of 10 | 4 of 12 |
+| 2023 | **2** of 10 | 3 of 12 | 4 of 12 | 5 of 11 |
+
+Contenders consistently had 3-5 complete hitters. The Yankees had 1-2. That's the Fishman roster construction philosophy: acquire extremes instead of building balance.
+
+![Extremes Trap](outputs/figures/extremes_trap.png)
+
+---
+
 ## The Fishman Scorecard
 
 | Bad Take | Damage | Period |
@@ -214,6 +248,7 @@ OAA (defensive effort) is the most year-over-year stable component (r = +0.19, p
 | Neglected defense for 4 years | -70.3 Def runs = 7.0 wins lost; -105 OAA | 2018-2021 |
 | #1 most HR-dependent team with no Plan B | 3 years at #1; can't win in October | 2018-2023 |
 | Zero investment in "Dawg" (clutch + hustle + grit) | Dawg predicts WAR (r=+0.30) independent of talent; Yankees bottom-third | 2017-2024 |
+| Acquired extremes instead of complete hitters (Gallo/IKF) | 1-2 "sweet spot" batters vs 3-5 for contenders; same blind spot as prospect pipeline | 2021-2023 |
 
 **Estimated total damage: ~14 wins** from baserunning, defense, and lineup construction alone. That doesn't include the prospect development failures, the October collapses, or the opportunity cost of building a one-dimensional roster in the most versatile park in baseball.
 
@@ -232,20 +267,21 @@ The fix was always available — the 2022 team proved it. They just had an analy
 | [05 — Prevention](notebooks/05_prevention_analysis.ipynb) | Monthly trends, pitch mix exploitation, readiness gates |
 | [06 — MiLB vs MLB](notebooks/06_milb_vs_mlb.ipynb) | The discipline was real — MLB broke it |
 | [07 — Systemic Analysis](notebooks/07_yankees_systemic.ipynb) | Why this keeps happening to the Yankees |
-| [08 — Fishman's Bad Takes](notebooks/08_fishman_case_studies.ipynb) | Short porch, baserunning, defense, dawg metric |
+| [08 — Fishman's Bad Takes](notebooks/08_fishman_case_studies.ipynb) | Short porch, baserunning, defense, dawg metric, 2022 paradox, extremes trap |
 | [09 — Dawg Metric Deep Dive](notebooks/09_dawg_metric.ipynb) | Independence test, regression, year-ahead prediction, playoff model |
 
 ## Data
 
 All data sourced from public [Statcast](https://baseballsavant.mlb.com) via [pybaseball](https://github.com/jldbc/pybaseball) and [FanGraphs API](https://fangraphs.com).
 
-- **1,503,994 pitches** across 2023-2024 MLB seasons
+- **3,026,120 pitches** across 2021-2024 MLB seasons
 - **FanGraphs team batting stats** (2017-2024) for baserunning and lineup analysis
 - **343 pre-debut pitches** (Spring Training / select MiLB Statcast)
 - **19 prospect profiles** with complete Statcast data
 - **FanGraphs MiLB stats** for key prospects via FanGraphs API
 - **FanGraphs team fielding stats** (2017-2024) for OAA, DRS, UZR, and Def
 - **216 team-seasons** of combined batting + fielding data for Dawg metric regression
+- **FanGraphs individual batting stats** (2021-2024) for player-level barrel%, K%, and plate discipline comparisons
 
 ## Setup
 
