@@ -343,17 +343,17 @@ Standard sabermetric lineup construction says: put your best OBP guy first, best
 
 We defined 9 lineup positions with role-specific profiles, weighted by the metrics that matter most for that spot:
 
-| Spot | Role | Key Metrics | What SABR Misses |
-|------|------|-------------|------------------|
+| Spot | Role | Key Metrics | Our Fine-Tuning |
+|------|------|-------------|-----------------|
 | **1** | Table-Setter | OBP + speed + low K% | Speed creates run expectancy that pure OBP doesn't capture |
-| **2** | Best Hitter | Highest wOBA + OBP | Agreement with SABR — your MVP bats here |
+| **2** | Best Hitter | Highest wOBA + OBP | Your MVP bats here — SABR agrees |
 | **3** | OBP + Power | OBP >= .340, ISO >= .180 | Not a pure slugger — needs to get on base for cleanup |
-| **4** | Cleanup | Max ISO, Barrel% >= 10% | Pure damage. This is where your biggest power bat goes |
+| **4** | Cleanup | Max ISO, Barrel% >= 10% | Pure damage. Biggest power bat goes here |
 | **5** | Power/Contact | ISO >= .150, K% <= 25% | Contact matters — can't strand runners with K's |
-| **6** | Bridge Hitter | wOBA >= .310, balanced profile | Connects power-heavy top to contact-heavy bottom. Solid all-around. |
+| **6** | Bridge Hitter | wOBA >= .310, balanced profile | Connects power-heavy top to contact-heavy bottom |
 | **7** | Contact Manufacturer | K% <= 20%, AVG >= .260 | Moves runners, puts ball in play. Manufacturing in the bottom third |
 | **8** | Specialist | Defense-first, BsR > 0 | Speed to score from 1st on doubles. Lowest offensive floor |
-| **9** | Second Leadoff | OBP >= .320, BB% >= 9% | Agreement with SABR — OBP and patience to turn the lineup over to 1-2 |
+| **9** | Second Leadoff | OBP >= .320, BB% >= 9% | OBP and patience to turn the lineup over to 1-2 — SABR agrees |
 
 ### Production first, role-fit second
 
