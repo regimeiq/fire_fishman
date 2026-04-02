@@ -22,3 +22,4 @@ venv/
 # Nested repo artifact from GitHub Desktop
 /fire_fishman/
 anaconda_projects/
+PRIORITIES.md

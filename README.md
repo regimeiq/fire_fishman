@@ -37,7 +37,7 @@ Against MLB pitching, both collapsed:
 
 The issue isn't talent — it's **calibration**. Their pitch recognition was trained on minor league stuff. MLB breaking balls break later, tunnel better, and are sequenced by data-driven staffs. The Yankees let their prospects calibrate on the job instead of pre-training them.
 
-Compare to Henderson: 30.9% K rate in A-ball dropped to 23.1% in AA with a 19.7% BB rate. He solved pitch recognition *before* his call-up. Volpe's K% flatlined at ~20% — the traditional stats looked great while hiding the pitch recognition ceiling.
+Compare to Henderson: 30.9% K rate in A-ball dropped to 23.1% in AA/AAA with a 15.7% BB rate. He solved pitch recognition *before* his call-up. Volpe's K% flatlined at ~20% — the traditional stats looked great while hiding the pitch recognition ceiling.
 
 ![MiLB vs MLB](outputs/figures/milb_vs_mlb.png)
 
@@ -60,7 +60,7 @@ This isn't two isolated cases. The Yankees system repeatedly produced hitters wh
 | **Volpe** | "Best Strike-Zone Discipline" (BA), .423 OBP | Chase rate doubled, seasonal collapse pattern |
 | **Dominguez** | "Best Strike-Zone Discipline" (BA), 17.3% K rate | Chase rate doubled, breaking ball chase 41% |
 | **Peraza** | Solid AAA numbers | 35% breaking ball chase, couldn't stick |
-| **Rice** | 13.3% BB rate, Yankees MiLB POTY | **Chase rate held at 21%**, xwOBA .394 in 2025 breakout |
+| **Rice** | 14.8% BB rate, Yankees MiLB POTY | **Chase rate held at 23%**, 15.4% barrel rate in 2025 breakout |
 
 Rice is the counter-example that makes the failures more damning. Same system, same park — but his discipline survived the jump. Meanwhile, the Orioles (Henderson), Diamondbacks (Carroll), Reds (De La Cruz), and Royals (Witt Jr.) consistently translate minor league discipline to the majors. See [Notebook 10](notebooks/10_rice_comparison.ipynb) for the full Rice comparison.
 
@@ -77,11 +77,11 @@ At Yankee Stadium (2023-2024 Statcast):
 | Metric | LHH Pull | RHH Oppo |
 |--------|----------|----------|
 | HRs to right field | **153** | 108 |
-| HR rate to RF per PA | **6.03%** | 2.71% |
+| HR rate to RF per PA | **2.85%** | 1.36% |
 | Avg exit velocity | 103.7 mph | 101.9 mph |
 | Avg distance | 387 ft | 370 ft |
 
-**LHH are 2.2x more productive per PA to the short porch.** RHH oppo HRs are lower-exit-velo, shorter-distance, and less repeatable. Pull power is a skill; oppo power is a fluke.
+**LHH are 2.1x more productive per PA to the short porch.** RHH oppo HRs are lower-exit-velo, shorter-distance, and less repeatable. Pull power is a skill; oppo power is a fluke.
 
 ### Pitchers loved the all-RH lineup
 
@@ -250,17 +250,16 @@ Ben Rice was a 12th-round pick — about as far from a blue-chip prospect as you
 
 ### The discipline held
 
-Rice debuted in 2024 to a rough surface line: .171 AVG, .613 OPS in 50 games. But the underlying numbers told a different story:
+Rice debuted in 2024 with ugly surface stats (.171 AVG in 50 games), but the underlying pitch recognition told a different story. Career MLB averages from Statcast:
 
-| Metric | Rice 2024 | Rice 2025 | Volpe (career) | Dominguez (career) |
-|--------|-----------|-----------|----------------|-------------------|
-| Chase rate | 20.6% | 21.2% | ~31% | ~31% |
-| Whiff rate | 25.8% | 21.2% | ~28% | ~30% |
-| Barrel% | 15.6% | 15.4% | ~7% | ~9% |
-| xwOBA | .340 | **.394** | ~.300 | ~.290 |
-| BABIP | **.186** | .271 | ~.290 | ~.280 |
+| Metric | Rice (career MLB) | Volpe (career MLB) | Dominguez (career MLB) |
+|--------|-------------------|-------------------|----------------------|
+| Chase rate | **23.4%** | 29.5% | 33.1% |
+| Whiff rate | **21.7%** | 23.0% | 24.6% |
+| Zone contact | **88.3%** | 84.5% | 86.4% |
+| Barrel% (2025) | **15.4%** | 10.5% | 7.0% |
 
-Rice's 2024 BABIP of .186 was absurdly low — league average is ~.300. He was getting robbed, not failing. His xwOBA of .340 on a small sample (50 games, ~180 PA) signaled the contact quality was real. In 2025, with 530 PA, it all came together: .255/.836 OPS, 26 HR, and an xwOBA of .394 that says he's even better than the numbers show.
+Rice's chase rate (23.4%) is elite — he's not expanding the zone under MLB-quality stuff. Volpe and Dominguez both chase nearly 10 percentage points more. Rice's barrel rate (15.4%) is nearly 50% higher than Volpe's and over double Dominguez's, meaning he's not just making contact — he's driving the ball.
 
 ### The short porch connection
 
@@ -268,13 +267,12 @@ Rice is exactly the player profile Case Study 2 said the Yankees should build ar
 
 ### What Rice did differently
 
-| Dimension | Rice | Volpe/Dominguez |
-|-----------|------|-----------------|
-| MiLB BB% | 13-15% | 11-15% |
-| MLB chase rate | **21%** (held) | **31%** (doubled) |
-| Breaking ball vulnerability | Controlled | Exploited |
-| BABIP adjustment | Unlucky in year 1, corrected in year 2 | Chase rate never corrected |
-| Approach | Uses whole field, barrels the ball | Expanded zone under pressure |
+| Dimension | Rice | Volpe | Dominguez |
+|-----------|------|-------|-----------|
+| MiLB BB% | 14.8% | 10.9% | 8.8% |
+| MLB chase rate | **23.4%** | 29.5% | 33.1% |
+| Breaking ball chase | Controlled (24.9%) | Borderline (33.0%) | Exploited (47.4%) |
+| Readiness gates passed | **5/5** | 4/5 | 2/5 |
 
 The readiness gate framework from Notebook 05 validates this: Rice passes more gates than Volpe, Dominguez, or Peraza. His pitch recognition survived the jump to MLB-quality breaking balls. Theirs didn't.
 
@@ -346,7 +344,7 @@ Using standard SABR lineup principles, we built a lineup position model with rol
 | Bad Take | Damage | Period |
 |----------|--------|--------|
 | Prospect pipeline doesn't prepare for MLB pitch recognition | Stars pass 60%+ of Statcast gates; Yankees busts pass <40% | 2019-2024 |
-| RH-heavy lineup despite most LHH-friendly park in baseball | LHH 2.2x more productive to RF; ~27 HRs left on table | 2017-2022 |
+| RH-heavy lineup despite most LHH-friendly park in baseball | LHH 2.1x more productive to RF; ~27 HRs left on table | 2017-2022 |
 | Abandoned baserunning as competitive tool | -39.2 BsR = 3.9 wins lost; 30th by 2024 | 2018-2024 |
 | Neglected defense for 4 years | -70.3 Def runs = 7.0 wins lost; -105 OAA | 2018-2021 |
 | #1 most HR-dependent team with no Plan B | 3 years at #1; can't win in October | 2018-2023 |

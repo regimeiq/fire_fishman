@@ -101,7 +101,7 @@ MILB_STATS = {
                "note": "High K% but elite power for age-20 season"},
         2022: {"level": "AA/AAA", "pa": 503, "avg": .297, "obp": .416, "slg": .531,
                "bb_pct": .157, "k_pct": .231, "woba": .412, "wrc_plus": 152.0,
-               "note": "Massive AA breakout: 19.7% BB rate, K% dropped 8 points"},
+               "note": "Massive AA breakout: 15.7% BB rate combined, K% dropped 8 points"},
     },
     "Corbin Carroll": {
         2022: {"level": "AA/AAA", "pa": 442, "avg": .307, "obp": .425, "slg": .610,
