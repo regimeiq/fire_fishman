@@ -147,6 +147,24 @@ You can't out-homer elite pitchers for 7 games. When the HRs stop, you need othe
 
 ![Defense & Dawg](outputs/figures/defense_and_dawg.png)
 
+### The 2022 paradox: why 99 wins still got swept
+
+The 2022 Yankees are the obvious counterargument — they fixed defense (#1 DRS), showed up in the clutch (Pressure +1.98), and won 99 games. But they never fixed baserunning. Their Hustle component was **-0.98**, the worst of any top-10 Dawg team in the entire 2017-2024 dataset. They were also the **#1 most HR-dependent team** in baseball (31.5% of runs via HR).
+
+The first half masked the problem: 64-28 (.696), a 117-win pace. The second half revealed it: 35-35 (.500). Then came the ALCS against Houston's elite pitching:
+
+| Stat | Yankees | Astros |
+|------|---------|--------|
+| Runs per game | 1.8 | 4.5 |
+| Runs via HR | ~4 | ~3 |
+| Runs manufactured (non-HR) | **3** | **15** |
+
+Houston manufactured 15 runs without the home run. The Yankees managed 3. That's what Hustle = -0.98 looks like in October: can't steal, can't take extra bases, can't advance on balls in dirt. When the HR dries up, the offense dies.
+
+The 2022 team proved you can fix Grit (defense) overnight — just prioritize it. But Hustle (baserunning philosophy) was never addressed under Fishman. That's not a talent problem. It's an analytics philosophy problem.
+
+![2022 Paradox](outputs/figures/2022_paradox.png)
+
 ---
 
 ## Case Study 5: The Dawg Metric — Quantifying Heart
