@@ -8,10 +8,14 @@ from fire_fishman.data.prospects import (
     MILB_STATS,
     FANGRAPHS_IDS,
     YANKEES_SYSTEM,
+    TARGET_ORGS,
+    ELITE_DEV_ORGS,
     get_prospect_df,
     get_prospect_ids,
     get_yankees_prospects,
     get_yankees_system_df,
+    get_org_prospects,
+    get_org_summary,
 )
 
 
@@ -21,12 +25,13 @@ class TestProspectData:
 
     def test_prospect_tuple_format(self):
         for entry in PROSPECT_DATA:
-            name, mlbam_id, debut_year, rank, outcome = entry
+            name, mlbam_id, debut_year, rank, outcome, org = entry
             assert isinstance(name, str)
             assert isinstance(mlbam_id, int)
             assert 2019 <= debut_year <= 2025
             assert 1 <= rank <= 100
             assert outcome in ("star", "solid", "disappointing", "bust")
+            assert isinstance(org, str) and 2 <= len(org) <= 3
 
     def test_no_duplicate_names(self):
         names = [name for name, *_ in PROSPECT_DATA]
@@ -44,7 +49,7 @@ class TestGetProspectDf:
 
     def test_expected_columns(self):
         df = get_prospect_df()
-        expected = {"name", "mlbam_id", "debut_year", "pre_debut_rank", "outcome"}
+        expected = {"name", "mlbam_id", "debut_year", "pre_debut_rank", "outcome", "org"}
         assert set(df.columns) == expected
 
     def test_row_count_matches(self):
@@ -77,6 +82,37 @@ class TestYankeesProspects:
         names = set(df["name"])
         assert "Austin Wells" in names
         assert "Oswald Peraza" in names
+
+
+class TestOrgHelpers:
+    def test_get_org_prospects_returns_correct_org(self):
+        df = get_org_prospects("BAL")
+        assert all(df["org"] == "BAL")
+        assert len(df) >= 4
+
+    def test_get_org_prospects_unknown_org_returns_empty(self):
+        df = get_org_prospects("ZZZ")
+        assert len(df) == 0
+
+    def test_all_target_orgs_have_prospects(self):
+        for org in TARGET_ORGS:
+            df = get_org_prospects(org)
+            assert len(df) >= 2, f"{org} has only {len(df)} prospects"
+
+    def test_org_summary_has_expected_columns(self):
+        summary = get_org_summary()
+        assert "success_rate" in summary.columns
+        assert "org" in summary.columns
+        assert "n_prospects" in summary.columns
+
+    def test_org_summary_success_rate_valid(self):
+        summary = get_org_summary()
+        assert all(0 <= r <= 1 for r in summary["success_rate"])
+
+    def test_yankees_system_derived_from_prospect_data(self):
+        system_names = {t[0] for t in YANKEES_SYSTEM}
+        df = get_org_prospects("NYY")
+        assert system_names == set(df["name"])
 
 
 class TestMilbStats:
