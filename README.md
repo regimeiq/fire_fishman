@@ -353,7 +353,7 @@ We defined 9 lineup positions with role-specific profiles, weighted by the metri
 | **6** | Bridge Hitter | wOBA >= .310, balanced profile | Connects power-heavy top to contact-heavy bottom. Solid all-around. |
 | **7** | Contact Manufacturer | K% <= 20%, AVG >= .260 | Moves runners, puts ball in play. Manufacturing in the bottom third |
 | **8** | Specialist | Defense-first, BsR > 0 | Speed to score from 1st on doubles. Lowest offensive floor |
-| **9** | Second Leadoff | OBP >= .320, BB% >= 9% | Turns lineup over to 1-2. Table-setter characteristics. |
+| **9** | Second Leadoff | OBP >= .320, BB% >= 9% | Agreement with SABR — OBP and patience to turn the lineup over to 1-2 |
 
 ### Production first, role-fit second
 
