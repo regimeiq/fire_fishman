@@ -59,7 +59,21 @@ def classify_hit_directions(df: pd.DataFrame) -> pd.Series:
 
     Expects columns: 'hc_x', 'stand'.
     """
-    return df.apply(lambda r: classify_hit_direction(r["hc_x"], r["stand"]), axis=1)
+    hc_x = df["hc_x"]
+    stand = df["stand"]
+
+    # LHH: pull = RF (high hc_x), oppo = LF (low hc_x)
+    # RHH/S: pull = LF (low hc_x), oppo = RF (high hc_x)
+    is_lhh = stand == "L"
+
+    pull = (is_lhh & (hc_x > PULL_THRESHOLD_RF)) | (~is_lhh & (hc_x < PULL_THRESHOLD_LF))
+    oppo = (is_lhh & (hc_x < PULL_THRESHOLD_LF)) | (~is_lhh & (hc_x > PULL_THRESHOLD_RF))
+
+    result = pd.Series("center", index=df.index)
+    result[pull] = "pull"
+    result[oppo] = "oppo"
+    result[hc_x.isna()] = np.nan
+    return result
 
 
 def is_short_porch_hr(df: pd.DataFrame) -> pd.Series:
@@ -108,22 +122,23 @@ def compute_park_hr_factor_by_hand(
 ) -> dict:
     """Compare HR rate for LHH vs RHH at a specific park vs league average.
 
+    Excludes the target park from the league baseline to avoid diluting
+    the park factor toward 1.0.
+
     Returns dict with LHH and RHH park factors (1.0 = neutral).
     """
-    # All batted ball events
     bbe = pitches[pitches["events"].notna()].copy()
 
+    factors = {}
     for hand in ["L", "R"]:
         hand_bbe = bbe[bbe["stand"] == hand]
         park_bbe = hand_bbe[hand_bbe["home_team"] == team]
-        league_bbe = hand_bbe
+        league_bbe = hand_bbe[hand_bbe["home_team"] != team]
 
         park_hr_rate = (park_bbe["events"] == "home_run").mean()
         league_hr_rate = (league_bbe["events"] == "home_run").mean()
 
-        if hand == "L":
-            lhh_factor = park_hr_rate / league_hr_rate if league_hr_rate > 0 else 1.0
-        else:
-            rhh_factor = park_hr_rate / league_hr_rate if league_hr_rate > 0 else 1.0
+        label = "LHH_park_factor" if hand == "L" else "RHH_park_factor"
+        factors[label] = park_hr_rate / league_hr_rate if league_hr_rate > 0 else 1.0
 
-    return {"LHH_park_factor": lhh_factor, "RHH_park_factor": rhh_factor}
+    return factors

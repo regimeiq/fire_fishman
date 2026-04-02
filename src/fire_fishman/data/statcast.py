@@ -60,11 +60,25 @@ def get_batting_stats(season: int, force: bool = False) -> pd.DataFrame:
     return df
 
 
-def get_statcast_batter(player_id: int, start_dt: str, end_dt: str) -> pd.DataFrame:
-    """Fetch pitch-level data for a specific batter."""
+def get_statcast_batter(
+    player_id: int, start_dt: str, end_dt: str, force: bool = False
+) -> pd.DataFrame:
+    """Fetch pitch-level data for a specific batter.
+
+    Caches results as parquet keyed on (player_id, start_dt, end_dt).
+    """
     from pybaseball import statcast_batter
 
-    return statcast_batter(start_dt, end_dt, player_id)
+    cache_path = CACHE_DIR / f"batter_{player_id}_{start_dt}_{end_dt}.parquet"
+
+    if cache_path.exists() and not force:
+        return pd.read_parquet(cache_path)
+
+    print(f"Pulling Statcast data for batter {player_id} ({start_dt} to {end_dt})...")
+    df = statcast_batter(start_dt, end_dt, player_id)
+    if len(df) > 0:
+        df.to_parquet(cache_path, index=False)
+    return df
 
 
 def get_team_batting_stats(season: int, force: bool = False) -> pd.DataFrame:

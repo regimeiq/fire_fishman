@@ -27,24 +27,44 @@ def _classify_pitch(pitch_type: str) -> str:
     return "other"
 
 
+SWING_DESCRIPTIONS = frozenset([
+    "swinging_strike", "swinging_strike_blocked",
+    "foul", "foul_tip", "foul_bunt",
+    "hit_into_play", "hit_into_play_score", "hit_into_play_no_out",
+])
+
+WHIFF_DESCRIPTIONS = frozenset(["swinging_strike", "swinging_strike_blocked"])
+
+
 def _is_swing(description: str) -> bool:
     """Did the batter swing?"""
-    swing_descriptions = [
-        "swinging_strike", "swinging_strike_blocked",
-        "foul", "foul_tip", "foul_bunt",
-        "hit_into_play", "hit_into_play_score", "hit_into_play_no_out",
-    ]
-    return description in swing_descriptions
+    return description in SWING_DESCRIPTIONS
 
 
 def _is_whiff(description: str) -> bool:
     """Did the batter swing and miss?"""
-    return description in ["swinging_strike", "swinging_strike_blocked"]
+    return description in WHIFF_DESCRIPTIONS
 
 
 def _is_in_zone(plate_x: float, plate_z: float, sz_top: float, sz_bot: float) -> bool:
     """Is the pitch in the strike zone?"""
     return (-0.83 <= plate_x <= 0.83) and (sz_bot <= plate_z <= sz_top)
+
+
+def _vectorized_zone_swing_whiff(bp: pd.DataFrame) -> pd.DataFrame:
+    """Add in_zone, is_swing, is_whiff columns using vectorized operations."""
+    bp = bp.copy()
+    bp["in_zone"] = (
+        bp["plate_x"].between(-0.83, 0.83)
+        & bp["plate_z"].between(bp["sz_bot"], bp["sz_top"])
+        & bp["plate_x"].notna()
+    )
+    bp["is_swing"] = bp["description"].isin(SWING_DESCRIPTIONS)
+    bp["is_whiff"] = bp["description"].isin(WHIFF_DESCRIPTIONS)
+    bp["pitch_group"] = bp["pitch_type"].map(
+        {code: group for group, codes in PITCH_GROUPS.items() for code in codes}
+    ).fillna("other")
+    return bp
 
 
 def _parse_count(balls: int, strikes: int) -> str:
@@ -60,20 +80,14 @@ def _parse_count(balls: int, strikes: int) -> str:
 
 def compute_plate_discipline(pitches: pd.DataFrame, batter_id: int) -> dict:
     """Compute plate discipline metrics for a batter."""
-    bp = pitches[pitches["batter"] == batter_id].copy()
+    bp = pitches[pitches["batter"] == batter_id]
     if len(bp) == 0:
         return {}
 
-    bp["in_zone"] = bp.apply(
-        lambda r: _is_in_zone(r["plate_x"], r["plate_z"], r["sz_top"], r["sz_bot"])
-        if pd.notna(r["plate_x"]) else None,
-        axis=1,
-    )
-    bp["is_swing"] = bp["description"].apply(_is_swing)
-    bp["is_whiff"] = bp["description"].apply(_is_whiff)
+    bp = _vectorized_zone_swing_whiff(bp)
 
-    in_zone = bp[bp["in_zone"] == True]
-    out_zone = bp[bp["in_zone"] == False]
+    in_zone = bp[bp["in_zone"]]
+    out_zone = bp[~bp["in_zone"] & bp["plate_x"].notna()]
     swings = bp[bp["is_swing"]]
 
     return {
@@ -90,29 +104,20 @@ def compute_plate_discipline(pitches: pd.DataFrame, batter_id: int) -> dict:
 
 def compute_whiff_by_pitch_type(pitches: pd.DataFrame, batter_id: int) -> dict:
     """Whiff rate broken down by pitch group (fastball, breaking, offspeed)."""
-    bp = pitches[pitches["batter"] == batter_id].copy()
-    bp["pitch_group"] = bp["pitch_type"].apply(_classify_pitch)
-    bp["is_swing"] = bp["description"].apply(_is_swing)
-    bp["is_whiff"] = bp["description"].apply(_is_whiff)
+    bp = pitches[pitches["batter"] == batter_id]
+    bp = _vectorized_zone_swing_whiff(bp)
 
     results = {}
     for group in ["fastball", "breaking", "offspeed"]:
-        group_swings = bp[(bp["pitch_group"] == group) & bp["is_swing"]]
+        group_pitches = bp[bp["pitch_group"] == group]
+        group_swings = group_pitches[group_pitches["is_swing"]]
         results[f"whiff_rate_{group}"] = (
             group_swings["is_whiff"].mean() if len(group_swings) > 0 else np.nan
         )
-        results[f"chase_rate_{group}"] = np.nan
-        out_zone = bp[(bp["pitch_group"] == group)]
-        if "plate_x" in bp.columns:
-            out_zone = out_zone[
-                out_zone.apply(
-                    lambda r: not _is_in_zone(r["plate_x"], r["plate_z"], r["sz_top"], r["sz_bot"])
-                    if pd.notna(r["plate_x"]) else False,
-                    axis=1,
-                )
-            ]
-            if len(out_zone) > 0:
-                results[f"chase_rate_{group}"] = out_zone["is_swing"].mean()
+        out_zone = group_pitches[~group_pitches["in_zone"] & group_pitches["plate_x"].notna()]
+        results[f"chase_rate_{group}"] = (
+            out_zone["is_swing"].mean() if len(out_zone) > 0 else np.nan
+        )
 
     return results
 
@@ -120,9 +125,17 @@ def compute_whiff_by_pitch_type(pitches: pd.DataFrame, batter_id: int) -> dict:
 def compute_count_performance(pitches: pd.DataFrame, batter_id: int) -> dict:
     """Performance splits by count situation."""
     bp = pitches[pitches["batter"] == batter_id].copy()
-    bp["is_whiff"] = bp["description"].apply(_is_whiff)
-    bp["is_swing"] = bp["description"].apply(_is_swing)
-    bp["count_situation"] = bp.apply(lambda r: _parse_count(r["balls"], r["strikes"]), axis=1)
+    bp["is_whiff"] = bp["description"].isin(WHIFF_DESCRIPTIONS)
+    bp["is_swing"] = bp["description"].isin(SWING_DESCRIPTIONS)
+    bp["count_situation"] = np.select(
+        [
+            bp["strikes"] == 2,
+            (bp["balls"] >= 2) & (bp["strikes"] <= 1),
+            (bp["strikes"] >= 1) & (bp["balls"] == 0),
+        ],
+        ["two_strike", "hitter_ahead", "pitcher_ahead"],
+        default="even",
+    )
 
     results = {}
     for situation in ["two_strike", "hitter_ahead", "pitcher_ahead", "even"]:
@@ -141,8 +154,8 @@ def compute_velo_tier_performance(pitches: pd.DataFrame, batter_id: int) -> dict
         (pitches["batter"] == batter_id)
         & pitches["release_speed"].notna()
     ].copy()
-    bp["is_swing"] = bp["description"].apply(_is_swing)
-    bp["is_whiff"] = bp["description"].apply(_is_whiff)
+    bp["is_swing"] = bp["description"].isin(SWING_DESCRIPTIONS)
+    bp["is_whiff"] = bp["description"].isin(WHIFF_DESCRIPTIONS)
 
     bp["velo_tier"] = pd.cut(
         bp["release_speed"],
@@ -180,10 +193,14 @@ def compute_all_pitch_features(pitches: pd.DataFrame, batter_id: int) -> dict:
 def compute_pitch_features_for_cohort(
     pitches: pd.DataFrame, batter_ids: list[int]
 ) -> pd.DataFrame:
-    """Compute pitch-level features for a list of batters."""
+    """Compute pitch-level features for a list of batters.
+
+    Pre-filters the DataFrame once to avoid repeated full-table scans.
+    """
+    filtered = pitches[pitches["batter"].isin(batter_ids)]
     records = []
     for bid in batter_ids:
-        features = compute_all_pitch_features(pitches, bid)
+        features = compute_all_pitch_features(filtered, bid)
         features["batter_id"] = bid
         records.append(features)
     return pd.DataFrame(records).set_index("batter_id")
@@ -205,14 +222,7 @@ def compute_monthly_discipline(
     bp["game_date"] = pd.to_datetime(bp["game_date"])
     bp["year"] = bp["game_date"].dt.year
     bp["month"] = bp["game_date"].dt.month
-    bp["is_swing"] = bp["description"].apply(_is_swing)
-    bp["is_whiff"] = bp["description"].apply(_is_whiff)
-    bp["in_zone"] = bp.apply(
-        lambda r: _is_in_zone(r["plate_x"], r["plate_z"], r["sz_top"], r["sz_bot"])
-        if pd.notna(r["plate_x"]) else None,
-        axis=1,
-    )
-    bp["pitch_group"] = bp["pitch_type"].apply(_classify_pitch)
+    bp = _vectorized_zone_swing_whiff(bp)
 
     records = []
     for (year, month), mp in bp.groupby(["year", "month"]):
@@ -252,14 +262,7 @@ def compute_yearly_discipline(
 
     bp["game_date"] = pd.to_datetime(bp["game_date"])
     bp["year"] = bp["game_date"].dt.year
-    bp["is_swing"] = bp["description"].apply(_is_swing)
-    bp["is_whiff"] = bp["description"].apply(_is_whiff)
-    bp["in_zone"] = bp.apply(
-        lambda r: _is_in_zone(r["plate_x"], r["plate_z"], r["sz_top"], r["sz_bot"])
-        if pd.notna(r["plate_x"]) else None,
-        axis=1,
-    )
-    bp["pitch_group"] = bp["pitch_type"].apply(_classify_pitch)
+    bp = _vectorized_zone_swing_whiff(bp)
 
     records = []
     for year, yp in bp.groupby("year"):
