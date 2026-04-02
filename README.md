@@ -182,7 +182,7 @@ Dawg = 0.30 × Pressure + 0.35 × Hustle + 0.35 × Grit
 
 Pressure = z(+WPA) + z(-WPA, flipped) / 2    — step up vs choke
 Hustle   = z(UBR) + z(BsR) / 2               — extra bases, aggression
-Grit     = z(OAA)                             — making plays in the field
+Grit     = z(OAA)                            — making plays in the field
 ```
 
 All components z-scored within each season. Hustle and Grit weighted higher (35% each) because they're **controllable** — effort and philosophy, not luck.
