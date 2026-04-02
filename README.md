@@ -51,9 +51,9 @@ Compare to Henderson: 30.9% K rate in A-ball dropped to 23.1% in AA/AAA with a 1
 
 Overall whiff rate (d = -0.08) and zone contact rate (d = -0.02) show almost no separation. **The aggregate metrics hide the signal.**
 
-### It's the system, not the players
+### The pattern points to the system
 
-This isn't two isolated cases. The Yankees system repeatedly produced hitters who won minor league discipline awards and then collapsed:
+This isn't two isolated cases. Multiple Yankees prospects won minor league discipline awards and then collapsed at the MLB level — while other organizations with similar-caliber prospects consistently translated that discipline:
 
 | Player | MiLB Discipline | MLB Result |
 |--------|----------------|------------|
@@ -190,15 +190,15 @@ All components z-scored within each season. Hustle and Grit weighted higher (35%
 
 ### It's independent of talent, but predicts winning
 
-| Test | Result |
-|------|--------|
-| Dawg vs wRC+ (offensive talent) | r = +0.09 (not significant) |
-| Dawg vs WAR (winning) | r = +0.30 (p < 0.0001) |
-| R² improvement (wRC+ alone -> +Dawg) | 59.0% -> 64.5% (+5.4pp) |
-| Year-ahead: Dawg -> next year WAR | r = +0.22 (p = 0.003) |
-| Playoff prediction accuracy | 82.4% -> 86.6% with Dawg components |
+| Test | Result | Note |
+|------|--------|------|
+| Dawg vs wRC+ (offensive talent) | r = +0.09 (not significant) | Independent of offensive talent |
+| Dawg vs WAR (same-year) | r = +0.30 (p < 0.0001) | In-sample; 10-fold CV |
+| R² improvement (wRC+ alone → +Dawg) | 59.0% → 64.5% (+5.4pp) | Same-year regression |
+| **Year-ahead: Dawg → next year WAR** | **r = +0.22 (p = 0.003)** | **True out-of-sample** |
+| Playoff prediction accuracy (10-fold CV) | 82.4% → 86.6% with Dawg | In-sample CV; proxy = top-12 WAR teams |
 
-**+1 standard deviation of Dawg = ~4.0 additional team WAR.** This isn't captured by offense. It's the stuff that wins in October — and it's exactly what Fishman's analytics department ignored for a decade.
+The strongest validation is the year-ahead correlation: this year's Dawg is associated with r = +0.22 of *next* year's WAR. Same-year, +1 SD of Dawg is associated with ~4.0 additional team WAR — but that's a correlation, not a causal claim. Still, this is independent of offensive talent and it's exactly what Fishman's analytics department ignored for a decade.
 
 ### Grit is the most persistent component
 
@@ -344,14 +344,16 @@ Using standard SABR lineup principles, we built a lineup position model with rol
 | Bad Take | Damage | Period |
 |----------|--------|--------|
 | Prospect pipeline doesn't prepare for MLB pitch recognition | Stars pass 60%+ of Statcast gates; Yankees busts pass <40% | 2019-2024 |
-| RH-heavy lineup despite most LHH-friendly park in baseball | LHH 2.1x more productive to RF; ~27 HRs left on table | 2017-2022 |
+| RH-heavy lineup despite most LHH-friendly park in baseball | LHH 2.1x more productive to RF per PA | 2017-2024 |
 | Abandoned baserunning as competitive tool | -39.2 BsR = 3.9 wins lost; 30th by 2024 | 2018-2024 |
 | Neglected defense for 4 years | -70.3 Def runs = 7.0 wins lost; -105 OAA | 2018-2021 |
 | #1 most HR-dependent team with no Plan B | 3 years at #1; can't win in October | 2018-2023 |
-| Zero investment in "Dawg" (clutch + hustle + grit) | Dawg predicts WAR (r=+0.30) independent of talent; Yankees bottom-third | 2017-2024 |
+| Zero investment in "Dawg" (clutch + hustle + grit) | Dawg correlates with WAR (r=+0.30, year-ahead r=+0.22) independent of talent; Yankees bottom-third | 2017-2024 |
 | Acquired extremes instead of complete hitters (Gallo/IKF) | 1-2 "sweet spot" batters vs 3-5 for contenders; same blind spot as prospect pipeline | 2021-2023 |
 
-**Estimated total damage: ~14 wins** from baserunning, defense, and lineup construction alone. That doesn't include the prospect development failures, the October collapses, or the opportunity cost of building a one-dimensional roster in the most versatile park in baseball.
+**Documented damage: ~10.9 wins** — 3.9 from baserunning (BsR, 2018-2024) and 7.0 from defense (Def, 2018-2021). These are independent FanGraphs metrics with no overlap. Note the time periods differ: BsR spans 7 seasons while Def spans the 4-year neglect window before the 2022 correction.
+
+The handedness mismatch (RH-heavy lineups in a LHH park) likely cost additional wins, but we haven't calculated that rigorously enough to put a number on it. That doesn't include the prospect development failures, the October collapses, or the opportunity cost of building a one-dimensional roster in the most versatile park in baseball.
 
 The fix was always available — the 2022 team proved it, and Ben Rice proved it again in 2025. The talent was never the problem. They just had an analytics department that believed in one thing: the three-run homer. And when it doesn't come, you go home in October.
 
@@ -372,7 +374,7 @@ The fix was always available — the 2022 team proved it, and Ben Rice proved it
 | [09 — Dawg Metric Deep Dive](notebooks/09_dawg_metric.ipynb) | Independence test, regression, year-ahead prediction, playoff model |
 | [10 — Rice: The Counter-Example](notebooks/10_rice_comparison.ipynb) | Ben Rice vs Volpe/Dominguez/Peraza — what success looks like |
 | [11 — Ideal Role Player Profile](notebooks/11_role_player_profile.ipynb) | The anti-Gallo/anti-IKF: what complementary hitters should look like |
-| [12 — The Ideal 1-9 Lineup](notebooks/12_ideal_lineup.ipynb) | Data-driven lineup position model: optimal assignment of 2025 Yankees using Hungarian algorithm |
+| [12 — The Ideal 1-9 Lineup](notebooks/12_ideal_lineup.ipynb) | SABR-based lineup position model with role-specific fit scores (under development) |
 
 ## Data
 
@@ -418,15 +420,16 @@ jupyter notebook notebooks/
 | **XGBoost** (sanity check) | Feature importance for prospect translation | LOO-CV, used to confirm effect size rankings |
 | **Statcast-based readiness gates** | Prospect call-up framework | Pitch-type-specific thresholds derived from star 75th percentiles |
 | **Hitter archetype classification** | Roster construction analysis | Multi-dimensional profiling (barrel%, K%, BB%, BsR) |
-| **Hungarian algorithm** | Optimal lineup assignment | Maximize total fit score across 9 lineup positions with distinct role profiles |
+| **Lineup role-fit scoring** | Gap analysis for lineup construction | Role-specific fit scores (0-100) for each lineup position; under development |
 
 ## Limitations
 
 - **MiLB sample is small** (89-254 pitches from Spring Training). Directionally strong but not definitive.
-- **Prospect cohort is n=20**. Effect sizes are more honest than ML classifiers at this sample size.
+- **Prospect cohort is n=19-20**. Effect sizes are more honest than ML classifiers at this sample size, but findings are suggestive and hypothesis-generating, not proof of causation.
 - **Handedness analysis uses 2023-2024 Statcast** — the RH-heavy era (2017-2022) was worse but we don't have full pitch-level data for those years.
 - **Baserunning estimates are conservative** — BsR captures runs above average, not the full opportunity cost of the philosophy.
 - **Rice's 2024 MLB sample is small** (~180 PA, 50 games). The 2025 full season (530 PA) is the meaningful data point.
+- **Dawg metric validation is primarily same-year.** The r = +0.30 and R² improvement are in-sample (with 10-fold CV). The year-ahead correlation (r = +0.22) is the true out-of-sample test. The playoff prediction proxy (top-12 WAR teams) is defined from the same data used to build the metric.
 
 ## Tech Stack
 
