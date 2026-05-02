@@ -1,7 +1,6 @@
 """Tests for prospect data integrity."""
 
 import pandas as pd
-import pytest
 
 from fire_fishman.data.prospects import (
     PROSPECT_DATA,
@@ -9,7 +8,6 @@ from fire_fishman.data.prospects import (
     FANGRAPHS_IDS,
     YANKEES_SYSTEM,
     TARGET_ORGS,
-    ELITE_DEV_ORGS,
     get_prospect_df,
     get_prospect_ids,
     get_yankees_prospects,

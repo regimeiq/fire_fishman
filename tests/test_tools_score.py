@@ -124,6 +124,17 @@ class TestComputeToolsScore:
 
 
 class TestComputeToolsForCohort:
+    def test_vectorized_matches_single_batter_functions(self):
+        ids = [12345, 67890]
+        df = pd.concat(
+            [_make_batted_balls(n=200, batter_id=12345), _make_batted_balls(n=200, batter_id=67890, seed=7)]
+        )
+        result = compute_tools_for_cohort(df, ids)
+        expected = compute_tools_score(df, 12345)
+
+        for key, value in expected.items():
+            assert result.loc[12345, key] == pytest.approx(value)
+
     def test_returns_dataframe_with_z_scores(self):
         rng = np.random.RandomState(42)
         ids = [100, 200, 300]

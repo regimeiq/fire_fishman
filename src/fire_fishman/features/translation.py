@@ -38,10 +38,11 @@ def compute_translation_gap(
     for col in ["woba", "wrc_plus"]:
         if col in merged.columns:
             std = merged[col].std()
-            merged[f"{col}_z"] = (merged[col] - merged[col].mean()) / std if std > 0 else 0.0
+            merged[f"{col}_z"] = (merged[col] - merged[col].mean()) / std if pd.notna(std) and std > 0 else 0.0
 
     # Gap = tools_z - results_z
     if "tools_composite_z" in merged.columns and "woba_z" in merged.columns:
         merged["translation_gap"] = merged["tools_composite_z"] - merged["woba_z"]
+        return merged.sort_values("translation_gap", ascending=False)
 
-    return merged.sort_values("translation_gap", ascending=False)
+    return merged

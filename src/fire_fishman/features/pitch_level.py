@@ -54,10 +54,12 @@ def _is_in_zone(plate_x: float, plate_z: float, sz_top: float, sz_bot: float) ->
 def _vectorized_zone_swing_whiff(bp: pd.DataFrame) -> pd.DataFrame:
     """Add in_zone, is_swing, is_whiff columns using vectorized operations."""
     bp = bp.copy()
+    zone_known = bp[["plate_x", "plate_z", "sz_bot", "sz_top"]].notna().all(axis=1)
+    bp["zone_known"] = zone_known
     bp["in_zone"] = (
         bp["plate_x"].between(-0.83, 0.83)
         & bp["plate_z"].between(bp["sz_bot"], bp["sz_top"])
-        & bp["plate_x"].notna()
+        & zone_known
     )
     bp["is_swing"] = bp["description"].isin(SWING_DESCRIPTIONS)
     bp["is_whiff"] = bp["description"].isin(WHIFF_DESCRIPTIONS)
@@ -87,7 +89,7 @@ def compute_plate_discipline(pitches: pd.DataFrame, batter_id: int) -> dict:
     bp = _vectorized_zone_swing_whiff(bp)
 
     in_zone = bp[bp["in_zone"]]
-    out_zone = bp[~bp["in_zone"] & bp["plate_x"].notna()]
+    out_zone = bp[~bp["in_zone"] & bp["zone_known"]]
     swings = bp[bp["is_swing"]]
 
     return {
@@ -114,7 +116,7 @@ def compute_whiff_by_pitch_type(pitches: pd.DataFrame, batter_id: int) -> dict:
         results[f"whiff_rate_{group}"] = (
             group_swings["is_whiff"].mean() if len(group_swings) > 0 else np.nan
         )
-        out_zone = group_pitches[~group_pitches["in_zone"] & group_pitches["plate_x"].notna()]
+        out_zone = group_pitches[~group_pitches["in_zone"] & group_pitches["zone_known"]]
         results[f"chase_rate_{group}"] = (
             out_zone["is_swing"].mean() if len(out_zone) > 0 else np.nan
         )
@@ -195,15 +197,92 @@ def compute_pitch_features_for_cohort(
 ) -> pd.DataFrame:
     """Compute pitch-level features for a list of batters.
 
-    Pre-filters the DataFrame once to avoid repeated full-table scans.
+    Uses vectorized grouped aggregations to avoid repeated full-table scans.
     """
-    filtered = pitches[pitches["batter"].isin(batter_ids)]
-    records = []
-    for bid in batter_ids:
-        features = compute_all_pitch_features(filtered, bid)
-        features["batter_id"] = bid
-        records.append(features)
-    return pd.DataFrame(records).set_index("batter_id")
+    index = pd.Index(batter_ids, name="batter_id")
+    bp = pitches[pitches["batter"].isin(batter_ids)].copy()
+    df = pd.DataFrame(index=index)
+    df["total_pitches_seen"] = 0
+    if len(bp) == 0:
+        return df
+
+    bp = _vectorized_zone_swing_whiff(bp)
+    df["total_pitches_seen"] = bp.groupby("batter").size().reindex(index, fill_value=0)
+
+    def _mean_by_batter(mask: pd.Series, value_col: str) -> pd.Series:
+        return bp.loc[mask].groupby("batter")[value_col].mean().reindex(index)
+
+    df["chase_rate"] = _mean_by_batter(~bp["in_zone"] & bp["zone_known"], "is_swing")
+    df["zone_swing_rate"] = _mean_by_batter(bp["in_zone"], "is_swing")
+    zone_whiff = _mean_by_batter(bp["in_zone"] & bp["is_swing"], "is_whiff")
+    df["zone_contact_rate"] = 1 - zone_whiff
+    df["whiff_rate"] = _mean_by_batter(bp["is_swing"], "is_whiff")
+
+    group_order = ["fastball", "breaking", "offspeed"]
+    whiff_by_group = (
+        bp.loc[bp["is_swing"]]
+        .groupby(["batter", "pitch_group"])["is_whiff"]
+        .mean()
+        .unstack()
+        .reindex(index=index, columns=group_order)
+    )
+    chase_by_group = (
+        bp.loc[~bp["in_zone"] & bp["zone_known"]]
+        .groupby(["batter", "pitch_group"])["is_swing"]
+        .mean()
+        .unstack()
+        .reindex(index=index, columns=group_order)
+    )
+    for group in group_order:
+        df[f"whiff_rate_{group}"] = whiff_by_group[group]
+        df[f"chase_rate_{group}"] = chase_by_group[group]
+
+    bp["count_situation"] = np.select(
+        [
+            bp["strikes"] == 2,
+            (bp["balls"] >= 2) & (bp["strikes"] <= 1),
+            (bp["strikes"] >= 1) & (bp["balls"] == 0),
+        ],
+        ["two_strike", "hitter_ahead", "pitcher_ahead"],
+        default="even",
+    )
+    situations = ["two_strike", "hitter_ahead", "pitcher_ahead", "even"]
+    whiff_by_count = (
+        bp.loc[bp["is_swing"]]
+        .groupby(["batter", "count_situation"])["is_whiff"]
+        .mean()
+        .unstack()
+        .reindex(index=index, columns=situations)
+    )
+    for situation in situations:
+        df[f"whiff_rate_{situation}"] = whiff_by_count[situation]
+
+    velo_bp = bp[bp["release_speed"].notna()].copy()
+    velo_bp["velo_tier"] = pd.cut(
+        velo_bp["release_speed"],
+        bins=[0, 90, 93, 96, 110],
+        labels=["soft_sub90", "avg_90_93", "hard_93_96", "elite_96plus"],
+    )
+    tiers = ["soft_sub90", "avg_90_93", "hard_93_96", "elite_96plus"]
+    whiff_by_tier = (
+        velo_bp.loc[velo_bp["is_swing"]]
+        .groupby(["batter", "velo_tier"], observed=False)["is_whiff"]
+        .mean()
+        .unstack()
+        .reindex(index=index, columns=tiers)
+    )
+    ev_by_tier = (
+        velo_bp.loc[velo_bp["launch_speed"].notna()]
+        .groupby(["batter", "velo_tier"], observed=False)["launch_speed"]
+        .mean()
+        .unstack()
+        .reindex(index=index, columns=tiers)
+    )
+    for tier in tiers:
+        df[f"whiff_rate_{tier}"] = whiff_by_tier[tier]
+        df[f"avg_ev_{tier}"] = ev_by_tier[tier]
+
+    return df
 
 
 def compute_monthly_discipline(
@@ -228,11 +307,12 @@ def compute_monthly_discipline(
     for (year, month), mp in bp.groupby(["year", "month"]):
         if len(mp) < min_pitches:
             continue
-        oz = mp[mp["in_zone"] == False]
-        iz = mp[mp["in_zone"] == True]
+        out_zone = ~mp["in_zone"] & mp["zone_known"]
+        oz = mp[out_zone]
+        iz = mp[mp["in_zone"]]
         swings = mp[mp["is_swing"]]
-        brk_oz = mp[(mp["pitch_group"] == "breaking") & (mp["in_zone"] == False)]
-        off_oz = mp[(mp["pitch_group"] == "offspeed") & (mp["in_zone"] == False)]
+        brk_oz = mp[(mp["pitch_group"] == "breaking") & out_zone]
+        off_oz = mp[(mp["pitch_group"] == "offspeed") & out_zone]
         velo96 = mp[(mp["release_speed"] >= 96) & mp["is_swing"]]
         iz_swings = iz[iz["is_swing"]]
 
@@ -266,11 +346,12 @@ def compute_yearly_discipline(
 
     records = []
     for year, yp in bp.groupby("year"):
-        oz = yp[yp["in_zone"] == False]
-        iz = yp[yp["in_zone"] == True]
+        out_zone = ~yp["in_zone"] & yp["zone_known"]
+        oz = yp[out_zone]
+        iz = yp[yp["in_zone"]]
         swings = yp[yp["is_swing"]]
-        brk_oz = yp[(yp["pitch_group"] == "breaking") & (yp["in_zone"] == False)]
-        off_oz = yp[(yp["pitch_group"] == "offspeed") & (yp["in_zone"] == False)]
+        brk_oz = yp[(yp["pitch_group"] == "breaking") & out_zone]
+        off_oz = yp[(yp["pitch_group"] == "offspeed") & out_zone]
         velo96 = yp[(yp["release_speed"] >= 96) & yp["is_swing"]]
         iz_swings = iz[iz["is_swing"]]
 

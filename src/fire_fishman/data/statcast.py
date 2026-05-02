@@ -10,17 +10,24 @@ Usage:
     batting = get_batting_stats(2024)
 """
 
+import os
 from pathlib import Path
 
 import pandas as pd
-from pybaseball import cache as pb_cache
-from pybaseball import statcast, batting_stats
 
 CACHE_DIR = Path(__file__).parent / "cache"
 CACHE_DIR.mkdir(exist_ok=True)
 
-# Enable pybaseball's internal cache too
-pb_cache.enable()
+# Keep pybaseball's own cache inside the project so imports/tests do not write to
+# the user's home directory.
+os.environ.setdefault("PYBASEBALL_CACHE", str(CACHE_DIR / "pybaseball"))
+
+
+def _enable_pybaseball_cache() -> None:
+    """Enable pybaseball's cache after the local cache path is configured."""
+    from pybaseball import cache as pb_cache
+
+    pb_cache.enable()
 
 
 def get_statcast_pitches(season: int, force: bool = False) -> pd.DataFrame:
@@ -32,6 +39,9 @@ def get_statcast_pitches(season: int, force: bool = False) -> pd.DataFrame:
 
     if cache_path.exists() and not force:
         return pd.read_parquet(cache_path)
+
+    _enable_pybaseball_cache()
+    from pybaseball import statcast
 
     print(f"Pulling Statcast pitch data for {season} (this takes a few minutes)...")
     df = statcast(
@@ -53,6 +63,9 @@ def get_batting_stats(season: int, force: bool = False) -> pd.DataFrame:
     if cache_path.exists() and not force:
         return pd.read_parquet(cache_path)
 
+    _enable_pybaseball_cache()
+    from pybaseball import batting_stats
+
     print(f"Pulling FanGraphs batting stats for {season}...")
     df = batting_stats(season, qual=50)  # min 50 PA
     df.to_parquet(cache_path, index=False)
@@ -67,12 +80,13 @@ def get_statcast_batter(
 
     Caches results as parquet keyed on (player_id, start_dt, end_dt).
     """
-    from pybaseball import statcast_batter
-
     cache_path = CACHE_DIR / f"batter_{player_id}_{start_dt}_{end_dt}.parquet"
 
     if cache_path.exists() and not force:
         return pd.read_parquet(cache_path)
+
+    _enable_pybaseball_cache()
+    from pybaseball import statcast_batter
 
     print(f"Pulling Statcast data for batter {player_id} ({start_dt} to {end_dt})...")
     df = statcast_batter(start_dt, end_dt, player_id)
@@ -92,6 +106,7 @@ def get_team_batting_stats(season: int, force: bool = False) -> pd.DataFrame:
     if cache_path.exists() and not force:
         return pd.read_parquet(cache_path)
 
+    _enable_pybaseball_cache()
     from pybaseball import team_batting
 
     print(f"Pulling FanGraphs team batting stats for {season}...")
@@ -103,6 +118,7 @@ def get_team_batting_stats(season: int, force: bool = False) -> pd.DataFrame:
 
 def get_player_id(name: str) -> int:
     """Look up a player's MLBAM ID by name."""
+    _enable_pybaseball_cache()
     from pybaseball import playerid_lookup
 
     last, first = name.split(", ") if ", " in name else (name.split()[-1], name.split()[0])

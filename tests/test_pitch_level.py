@@ -5,15 +5,16 @@ import pandas as pd
 import pytest
 
 from fire_fishman.features.pitch_level import (
-    PITCH_GROUPS,
     _classify_pitch,
     _is_swing,
     _is_whiff,
     _is_in_zone,
     _parse_count,
+    compute_all_pitch_features,
     compute_plate_discipline,
     compute_whiff_by_pitch_type,
     compute_count_performance,
+    compute_pitch_features_for_cohort,
 )
 
 
@@ -158,6 +159,19 @@ class TestComputePlateDiscipline:
         result = compute_plate_discipline(pitches, 12345)
         assert result["total_pitches_seen"] == 200
 
+    def test_missing_zone_coordinates_excluded_from_chase_denominator(self):
+        pitches = pd.DataFrame({
+            "batter": [12345, 12345],
+            "description": ["foul", "called_strike"],
+            "pitch_type": ["FF", "FF"],
+            "plate_x": [np.nan, 1.2],
+            "plate_z": [2.5, 2.5],
+            "sz_top": [3.5, 3.5],
+            "sz_bot": [1.5, 1.5],
+        })
+        result = compute_plate_discipline(pitches, 12345)
+        assert result["chase_rate"] == 0.0
+
 
 class TestComputeWhiffByPitchType:
     def test_returns_all_groups(self):
@@ -181,3 +195,19 @@ class TestComputeCountPerformance:
         result = compute_count_performance(pitches, 12345)
         for sit in ["two_strike", "hitter_ahead", "pitcher_ahead", "even"]:
             assert f"whiff_rate_{sit}" in result
+
+
+class TestComputePitchFeaturesForCohort:
+    def test_vectorized_matches_single_batter_functions(self):
+        pitches = pd.concat(
+            [_make_pitches(n=500, batter_id=12345), _make_pitches(n=500, batter_id=67890, seed=7)]
+        )
+        cohort = compute_pitch_features_for_cohort(pitches, [12345, 67890])
+        scalar = compute_all_pitch_features(pitches, 12345)
+
+        for key, expected in scalar.items():
+            actual = cohort.loc[12345, key]
+            if np.isnan(expected):
+                assert np.isnan(actual)
+            else:
+                assert actual == pytest.approx(expected)

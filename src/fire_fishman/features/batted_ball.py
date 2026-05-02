@@ -113,7 +113,8 @@ def compute_yankee_stadium_hr_splits(pitches: pd.DataFrame) -> pd.DataFrame:
         )
         .reset_index()
     )
-    splits["pct_of_total"] = splits["hr_count"] / splits["hr_count"].sum()
+    total_hrs = splits["hr_count"].sum()
+    splits["pct_of_total"] = splits["hr_count"] / total_hrs if total_hrs > 0 else np.nan
     return splits
 
 
@@ -139,6 +140,10 @@ def compute_park_hr_factor_by_hand(
         league_hr_rate = (league_bbe["events"] == "home_run").mean()
 
         label = "LHH_park_factor" if hand == "L" else "RHH_park_factor"
-        factors[label] = park_hr_rate / league_hr_rate if league_hr_rate > 0 else 1.0
+        factors[label] = (
+            park_hr_rate / league_hr_rate
+            if pd.notna(park_hr_rate) and pd.notna(league_hr_rate) and league_hr_rate > 0
+            else 1.0
+        )
 
     return factors

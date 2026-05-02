@@ -2,7 +2,6 @@
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from fire_fishman.features.translation import (
     compute_results_score,

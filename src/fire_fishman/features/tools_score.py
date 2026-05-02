@@ -84,20 +84,55 @@ def compute_tools_score(pitches: pd.DataFrame, batter_id: int) -> dict:
 
 
 def compute_tools_for_cohort(pitches: pd.DataFrame, batter_ids: list[int]) -> pd.DataFrame:
-    """Compute tools scores for a list of batters, then add z-scored composite."""
-    records = []
-    for bid in batter_ids:
-        metrics = compute_tools_score(pitches, bid)
-        metrics["batter_id"] = bid
-        records.append(metrics)
+    """Compute tools scores for a list of batters, then add z-scored composite.
 
-    df = pd.DataFrame(records).set_index("batter_id")
+    Uses one filtered pass over the pitch table instead of rescanning it once per
+    batter/metric.
+    """
+    index = pd.Index(batter_ids, name="batter_id")
+    bbe = pitches[
+        pitches["batter"].isin(batter_ids) & pitches["launch_speed"].notna()
+    ].copy()
+
+    df = pd.DataFrame(index=index)
+    if len(bbe) > 0:
+        grouped = bbe.groupby("batter")["launch_speed"]
+        df["avg_exit_velo"] = grouped.mean().reindex(index)
+        df["ev90"] = grouped.quantile(0.90).reindex(index)
+        df["max_exit_velo"] = grouped.max().reindex(index)
+        df["hard_hit_rate"] = (
+            bbe.assign(hard_hit=bbe["launch_speed"] >= 95)
+            .groupby("batter")["hard_hit"]
+            .mean()
+            .reindex(index)
+        )
+
+        barrel_bbe = bbe[bbe["launch_angle"].notna()].copy()
+        if "barrel" in barrel_bbe.columns:
+            barrel_rate = barrel_bbe.assign(
+                is_barrel=barrel_bbe["barrel"].fillna(0).astype(bool)
+            ).groupby("batter")["is_barrel"].mean()
+        else:
+            barrel_angle_min = 26 - (barrel_bbe["launch_speed"] - 98) * 0.5
+            barrel_angle_max = 30 + (barrel_bbe["launch_speed"] - 98) * 0.5
+            barrel_rate = barrel_bbe.assign(
+                is_barrel=(
+                    (barrel_bbe["launch_speed"] >= 98)
+                    & (barrel_bbe["launch_angle"] >= barrel_angle_min)
+                    & (barrel_bbe["launch_angle"] <= barrel_angle_max)
+                    & (barrel_bbe["launch_angle"] >= 8)
+                    & (barrel_bbe["launch_angle"] <= 50)
+                )
+            ).groupby("batter")["is_barrel"].mean()
+        df["barrel_rate"] = barrel_rate.reindex(index)
+    else:
+        df[["avg_exit_velo", "ev90", "max_exit_velo", "barrel_rate", "hard_hit_rate"]] = np.nan
 
     # Z-score each metric, then average for composite
     tool_cols = ["avg_exit_velo", "ev90", "barrel_rate", "hard_hit_rate"]
     for col in tool_cols:
         std = df[col].std()
-        df[f"{col}_z"] = (df[col] - df[col].mean()) / std if std > 0 else 0.0
+        df[f"{col}_z"] = (df[col] - df[col].mean()) / std if pd.notna(std) and std > 0 else 0.0
 
     z_cols = [f"{c}_z" for c in tool_cols]
     df["tools_composite_z"] = df[z_cols].mean(axis=1)

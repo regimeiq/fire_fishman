@@ -2,12 +2,10 @@
 
 import numpy as np
 import pandas as pd
-import pytest
 
 from fire_fishman.features.batted_ball import (
     PULL_THRESHOLD_RF,
     PULL_THRESHOLD_LF,
-    SHORT_PORCH_MAX_DISTANCE,
     classify_hit_direction,
     classify_hit_directions,
     is_short_porch_hr,
@@ -71,7 +69,7 @@ class TestIsShortPorchHr:
             "hc_x": [170.0],
             "hit_distance_sc": [330.0],
         })
-        assert is_short_porch_hr(df).iloc[0] == True
+        assert is_short_porch_hr(df).iloc[0]
 
     def test_rejects_non_yankee_stadium(self):
         df = pd.DataFrame({
@@ -80,7 +78,7 @@ class TestIsShortPorchHr:
             "hc_x": [170.0],
             "hit_distance_sc": [330.0],
         })
-        assert is_short_porch_hr(df).iloc[0] == False
+        assert not is_short_porch_hr(df).iloc[0]
 
     def test_rejects_long_hr(self):
         df = pd.DataFrame({
@@ -89,7 +87,7 @@ class TestIsShortPorchHr:
             "hc_x": [170.0],
             "hit_distance_sc": [400.0],
         })
-        assert is_short_porch_hr(df).iloc[0] == False
+        assert not is_short_porch_hr(df).iloc[0]
 
     def test_rejects_non_hr(self):
         df = pd.DataFrame({
@@ -98,7 +96,7 @@ class TestIsShortPorchHr:
             "hc_x": [170.0],
             "hit_distance_sc": [330.0],
         })
-        assert is_short_porch_hr(df).iloc[0] == False
+        assert not is_short_porch_hr(df).iloc[0]
 
 
 class TestComputeYankeeStadiumHrSplits:
