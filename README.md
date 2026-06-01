@@ -5,6 +5,17 @@
 ## Quantifying Systemic Failures in Yankees Analytics (2017-2024)
 **Prospect Development, Roster Construction, and an Original Composite Metric for Intangible Contributions**
 
+## What This Demonstrates
+
+This project is an end-to-end public-data analysis: collection, feature engineering, cohort construction, hypothesis testing, regression, Bayesian modeling, cross-validation, limitations, and written analytic findings. The subject matter is baseball, but the work pattern is broader: define the question, collect evidence, test competing explanations, document uncertainty, and produce findings a decision-maker can act on.
+
+Review points:
+
+- **Data scale and structure:** 3M+ Statcast pitches, FanGraphs team/player data, prospect cohorts, and cached reproducible datasets.
+- **Feature engineering:** pitch-recognition, discipline, roster archetypes, baserunning, defense, and original composite metrics.
+- **Modeling discipline:** linear regression, Bayesian regression, effect sizes, cross-validation, and explicit limitations.
+- **Analytic writing:** the README and notebooks convert statistical outputs into clear judgments, not just charts.
+
 Michael Fishman has run the Yankees' analytics department since 2005. Under his leadership, the Yankees have made a series of analytically-driven decisions that were demonstrably wrong — not just in hindsight, but provably wrong with data that was available at the time.
 
 This project uses **3M+ pitches of Statcast data (2021-2026)**, **FanGraphs team and player statistics (2017-2025)**, **MiLB development records**, **org-level pipeline comparisons (43 prospects across 16 organizations)**, and **regression analysis with cross-validation** to quantify the damage across seven analyses:
