@@ -1,131 +1,91 @@
 # Yankees Analytics Audit
 
-> *Project nickname: `fire_fishman`. The repo name is tongue-in-cheek; the analysis is not. Every claim is sourced from public data and reproducible end-to-end.*
+## Baseball Analytics Case Study
 
-## Quantifying Systemic Failures in Yankees Analytics (2017-2024)
-**Prospect Development, Roster Construction, and an Original Composite Metric for Intangible Contributions**
+This repository is a public-data case study of Yankees roster construction and player development from 2017-2026. It uses Statcast, FanGraphs, and curated prospect data to examine where measurable strengths translated into MLB performance and where they did not.
 
-## What This Demonstrates
+The project is intentionally framed as an analytical audit: it evaluates decisions, outcomes, and uncertainty using reproducible code and public data. It is not a claim of causality, and it does not require agreement with every baseball interpretation to inspect the workflow.
 
-This project is an end-to-end public-data analysis: collection, feature engineering, cohort construction, hypothesis testing, regression, Bayesian modeling, cross-validation, limitations, and written analytic findings. The subject matter is baseball, but the work pattern is broader: define the question, collect evidence, test competing explanations, document uncertainty, and produce findings a decision-maker can act on.
+## Question Studied
 
-Review points:
+How well did Yankees player development and roster construction translate measurable inputs into MLB value?
 
-- **Data scale and structure:** 3M+ Statcast pitches, FanGraphs team/player data, prospect cohorts, and cached reproducible datasets.
-- **Feature engineering:** pitch-recognition, discipline, roster archetypes, baserunning, defense, and original composite metrics.
-- **Modeling discipline:** linear regression, Bayesian regression, effect sizes, cross-validation, and explicit limitations.
-- **Analytic writing:** the README and notebooks convert statistical outputs into clear judgments, not just charts.
+The analysis focuses on five related questions:
 
-Michael Fishman has run the Yankees' analytics department since 2005. Under his leadership, the Yankees have made a series of analytically-driven decisions that were demonstrably wrong — not just in hindsight, but provably wrong with data that was available at the time.
+| Area | Question |
+| --- | --- |
+| Prospect development | Did elite minor league plate discipline translate against MLB pitch quality? |
+| Pitch recognition | Which pitch-level metrics separate successful prospects from disappointing outcomes? |
+| Roster construction | Did the roster over-index on extreme player profiles rather than balanced contributors? |
+| Baserunning and defense | How much value did the team gain or lose in non-hitting components? |
+| Team value composite | Can pressure performance, baserunning, and defense explain team WAR beyond offense? |
 
-This project uses **3M+ pitches of Statcast data (2021-2026)**, **FanGraphs team and player statistics (2017-2025)**, **MiLB development records**, **org-level pipeline comparisons (43 prospects across 16 organizations)**, and **regression analysis with cross-validation** to quantify the damage across seven analyses:
+## Data Sources
 
-1. **Prospect Development** — Elite minor league hitters systematically collapsed at the MLB level because the pipeline didn't prepare them for MLB pitch recognition
-2. **Baserunning Philosophy** — Abandoned stolen bases and baserunning fundamentals, going from 7th in BsR to dead last while becoming the most HR-dependent team in baseball
-3. **Defensive Neglect** — 2nd worst OAA in baseball (2018-2021), costing 7.0 wins, then jumped to #1 DRS in 2022 proving the talent was always available
-4. **The Dawg Metric** — An original composite metric (pressure + hustle + grit) that predicts team WAR (r = +0.30) independently of offensive talent, validated via 10-fold CV and linear + Bayesian regression
-5. **The Extremes Trap** — Oscillating between all-or-nothing sluggers (Gallo: 18.5% barrel rate, 37.7% K) and contactless slap hitters (IKF: 1.0% barrel rate, .650 OPS) while contenders built complete hitters
-6. **The Diamond in the Rough** — A 12th-round pick holds his discipline (21% chase rate) while the "next Mickey Mantle" and a 1st-rounder both collapse at 31% — why did the org's least-hyped prospect succeed where the blue chips failed?
-7. **Roster Construction** — Profiling the archetypes contenders actually build (complete hitters, speed/defense specialists, platoon bats, table-setters) vs the Yankees' extreme-only approach
+All data comes from public sources through Python tooling:
 
-### 2026 Live Update
+| Dataset | Coverage | Use |
+| --- | --- | --- |
+| Statcast pitch-level data | 2021-2026 | Plate discipline, whiff rates, exit velocity, launch angle, batted-ball direction |
+| FanGraphs team batting | 2017-2024 | BsR, UBR, wSB, HR dependency, offensive context |
+| FanGraphs team fielding | 2017-2024 | OAA, DRS, UZR, Def |
+| FanGraphs player batting | 2021-2025 | Barrel%, K%, BB%, wOBA, wRC+, roster archetypes |
+| Curated prospect cohort | 43 prospects, 16 organizations | Translation gaps, readiness gates, org-level comparison |
+| MiLB development records | Selected prospect careers | Pre-/post-debut plate discipline context |
 
-The Rice counterexample has become the strongest out-of-sample validation case in the project. As of early June 2026, Ben Rice leads MLB in OPS and slugging, turning the readiness-gate profile from "promising exception" into a live All-Star-level breakout. Dominguez is temporarily paused as an evaluation case after a May 2026 shoulder injury, and Volpe remains a monitoring case after apparent swing-plane changes.
+## Methods
 
----
+- Vectorized pandas feature engineering for pitch-level plate discipline, pitch-type whiff rates, velocity tiers, batted-ball quality, and tools-to-production translation gaps.
+- Z-scored tools and team components within comparison groups to control for scale differences.
+- Effect size analysis for small prospect cohorts, with machine-learning models used only as sanity checks.
+- Linear regression, 10-fold cross-validation, and Bayesian regression for the team-level value composite.
+- Explicit limitations for sample size, observational inference, and same-year versus year-ahead validation.
+
+Additional detail: [docs/methodology.md](docs/methodology.md) and [docs/limitations.md](docs/limitations.md).
 
 ## Key Findings
 
-### 1. The Prospect Pipeline ([Notebooks 01-07, 10](notebooks/))
+| Finding | Evidence | Interpretation |
+| --- | --- | --- |
+| Prospect translation issues were pitch-type-specific. | Offspeed chase, breaking-ball chase, and high-velocity whiff rates separated stronger outcomes from weaker ones more clearly than aggregate whiff rate. | Aggregate discipline metrics can hide the exact failure mode. |
+| Ben Rice was the strongest internal counterexample. | Rice held a lower chase-rate profile, passed 5/5 readiness gates in the notebook framework, broke out in 2025, and opened 2026 as an early league OPS/SLG leader. | The framework did not simply label all Yankees prospects as failures; it identified a different readiness profile. |
+| Dominguez and Volpe remain live evaluations. | Dominguez's May 2026 shoulder injury interrupts the signal; Volpe's swing-plane adjustment should be monitored before updating the read. | These cases should be treated as ongoing, not closed. |
+| Org-level development outcomes differed materially. | The curated cohort shows Baltimore at 100% successful outcomes (5/5), Cleveland at 60% (3/5), and the Yankees at 33% (2/6) among target organizations. | The sample is modest, but the pattern supports further investigation into development process differences. |
+| Baserunning value declined from a prior strength. | Yankees BsR moved from +7.6 in 2017 to -17.2 in 2024, with a cumulative -39.2 BsR from 2018-2024. | The loss was broader than stolen bases; UBR and extra-base advancement were part of the decline. |
+| Defensive value was available but inconsistently prioritized. | The team was near the bottom of OAA from 2018-2021, then improved sharply in 2022. | Defensive underperformance appears to have been a roster-construction choice rather than a fixed constraint. |
+| Balanced roster profiles mattered. | Contenders tended to carry more complete hitters, while several Yankees rosters leaned toward all-or-nothing power or low-impact contact profiles. | Roster balance is a measurable construction issue, not only a stylistic preference. |
+| The team-level value composite added signal beyond offense. | The pressure/baserunning/defense composite correlated with WAR (same-year r = +0.30; year-ahead r = +0.22) and was tested with linear and Bayesian regression. | The metric is exploratory and should be interpreted as a compact summary of non-offensive value, not a causal model. |
 
-Volpe and Dominguez had elite minor league discipline — both won BA's "Best Strike-Zone Discipline" — then collapsed at the MLB level. Chase rates doubled for both. Meanwhile, Rice (12th-round pick, 14.8% MiLB BB rate) held his chase rate at 23%, broke out in 2025, and followed with an All-Star-level 2026 start. The pattern suggests a systemic development issue, not individual talent failures. Across a prospect cohort, the metrics that separate stars from busts are pitch-type-specific (offspeed chase, fastball whiff) — not aggregate whiff or zone contact.
+## 2026 Live Update
 
-**Org-level comparison (43 prospects, 2019-2024 debuts):** Baltimore converts at 100% (5/5 star or solid), Cleveland at 60% (3/5), while the Yankees sit at 33% (2/6) — tied for worst among target orgs. The orgs with fewer resources are systematically outperforming the Yankees at translating minor league talent to MLB production.
+As of early June 2026, Ben Rice is the strongest live validation case in the project: his 2025 breakout and early 2026 OPS/SLG leaderboard position align with the readiness-gate profile identified in Notebook 10. Because the 2026 season is ongoing, the final read should be revisited after the year.
 
-### 2. Baserunning: 7th to Dead Last ([Notebook 08](notebooks/08_fishman_case_studies.ipynb))
+Dominguez is temporarily paused as an evaluation case after a May 2026 shoulder injury. Volpe remains a monitoring case because any swing-plane adjustment needs a larger sample before changing the underlying conclusion.
 
-BsR collapsed from +7.6 (7th, 2017) to -17.2 (30th, 2024). Total: -39.2 BsR = 3.9 wins lost. The UBR collapse (extra base taking: +9.7 → -10.9) is worse than the stolen base issue — this is a team that can't run the bases under any circumstances.
+## Notebooks
 
-### 3. Defensive Neglect: 7.0 Wins Lost ([Notebook 08](notebooks/08_fishman_case_studies.ipynb))
+| Notebook | Focus |
+| --- | --- |
+| [01 - Translation Gap](notebooks/01_translation_gap.ipynb) | Tools versus MLB production |
+| [02 - Pitch Diagnostics](notebooks/02_pitch_diagnostics.ipynb) | Pitch-type and count-specific vulnerabilities |
+| [03 - Effect Sizes](notebooks/03_prediction_model.ipynb) | Metrics that separate stronger and weaker outcomes |
+| [04 - Prescriptions](notebooks/04_prescriptions.ipynb) | Player-specific development priorities |
+| [05 - Prevention](notebooks/05_prevention_analysis.ipynb) | Monthly trends, pitch mix, readiness gates |
+| [06 - MiLB vs MLB](notebooks/06_milb_vs_mlb.ipynb) | Minor league discipline versus MLB translation |
+| [07 - Systemic Analysis](notebooks/07_yankees_systemic.ipynb) | Organization-level prospect outcomes |
+| [08 - Yankees Case Studies](notebooks/08_yankees_case_studies.ipynb) | Baserunning, defense, HR dependency, roster extremes |
+| [09 - Team Value Composite](notebooks/09_team_value_composite.ipynb) | Pressure, baserunning, defense, and WAR |
+| [10 - Ben Rice Comparison](notebooks/10_rice_comparison.ipynb) | Rice versus Volpe, Dominguez, and Peraza |
+| [11 - Roster Balance](notebooks/11_role_player_profile.ipynb) | Hitter archetypes and roster depth |
+| [12 - Lineup Fit Exploration](notebooks/12_ideal_lineup.ipynb) | Experimental role-fit scoring |
 
-2nd worst OAA in baseball (2018-2021), -70.4 Def runs = 7.0 wins lost. Then 2022: jumped to #1 DRS. The talent was always available — they just chose not to prioritize it. The 2022 team proves you can fix defense overnight, but they never fixed baserunning (Hustle = -0.98, worst among top-10 Dawg teams).
-
-### 4. The Dawg Metric ([Notebook 09](notebooks/09_dawg_metric.ipynb))
-
-An original composite (Pressure + Hustle + Grit, z-scored within season) that correlates with WAR (r = +0.30, year-ahead r = +0.22) independently of offensive talent (r = +0.09 vs wRC+). Validated via linear regression with 10-fold CV and Bayesian regression (Dawg coefficient: +4.0 WAR per 1 SD, 94% HDI [+2.7, +5.3], P(dawg > 0) = 1.0). The Yankees ranked bottom-third for most of 2017-2024.
-
-### 5. The Extremes Trap ([Notebooks 08, 11](notebooks/))
-
-Gallo (37.7% K, 84 wRC+) and IKF (1.0% barrel, 84 wRC+) — opposite extremes, same result. Contenders carried 3-4 "complete hitters" (K% < 25%, Barrel% > 6%, BB% > 8%). The Yankees typically had 1-2 (reaching 3 only in 2024 with Soto). The roster construction philosophy acquired extremes instead of building balance.
-
-### 6. The Diamond in the Rough ([Notebook 10](notebooks/10_rice_comparison.ipynb))
-
-Rice (chase 23.4%, barrel 15.4%) vs Volpe (chase 29.5%, barrel 10.5%) vs Dominguez (chase 33.1%, barrel 7.0%). Same org, same park — wildly different outcomes. Rice passes 5/5 readiness gates; Dominguez passes 2/5. The lower-profile guy figured it out first, and his 2026 OPS/SLG leadership turns the notebook's counterexample into live validation of the framework. Dominguez should be re-evaluated after his shoulder injury; Volpe should be tracked for whether the flatter swing translates into sustained contact quality.
-
-### 7. Roster Construction ([Notebook 11](notebooks/11_role_player_profile.ipynb))
-
-Contenders carry distinct archetypes (stars, complete hitters, speed/defense specialists, platoon bats, table-setters). The Yankees filled 3+ spots with the same extreme. The 2022 Astros carried 4 complete hitters; the 2024 Dodgers had 3 (Ohtani, Freeman, W. Smith). The Yankees typically had 1-2 before the Soto acquisition.
-
----
-
-## The Fishman Scorecard
-
-| Bad Take | Damage | Period |
-|----------|--------|--------|
-| Prospect pipeline doesn't prepare for MLB pitch recognition | 33% success rate (2/6) vs BAL 100% (5/5) and CLE 60% (3/5); stars pass 60%+ of Statcast gates, Yankees busts pass <40% | 2019-2024 |
-| Abandoned baserunning as competitive tool | -39.2 BsR = 3.9 wins lost; 30th by 2024 | 2018-2024 |
-| Neglected defense for 4 years | -70.4 Def runs = 7.0 wins lost; -105 OAA | 2018-2021 |
-| #1 most HR-dependent team with no Plan B | 3 years at #1; can't win in October | 2018-2023 |
-| Zero investment in "Dawg" (clutch + hustle + grit) | Dawg correlates with WAR (r=+0.30, year-ahead r=+0.22) independent of talent; Yankees bottom-third | 2017-2024 |
-| Acquired extremes instead of complete hitters (Gallo/IKF) | 1-2 "sweet spot" batters vs 3-4 for contenders; same blind spot as prospect pipeline | 2021-2023 |
-
-**Documented damage: ~10.9 wins** — 3.9 from baserunning (BsR, 2018-2024) and 7.0 from defense (Def, 2018-2021). These are independent FanGraphs metrics with no overlap. Note the time periods differ: BsR spans 7 seasons while Def spans the 4-year neglect window before the 2022 correction.
-
-That doesn't include the prospect development failures, the October collapses, or the opportunity cost of building a one-dimensional roster.
-
-The fix was always available — the 2022 team proved it, Ben Rice proved it in 2025, and his 2026 start strengthened the case. The talent was never the problem.
-
----
-
-## Analysis Modules
-
-| Notebook | Question |
-|----------|----------|
-| [01 — Translation Gap](notebooks/01_translation_gap.ipynb) | Who has elite tools but poor results? |
-| [02 — Pitch Diagnostics](notebooks/02_pitch_diagnostics.ipynb) | Where exactly do Volpe/Dominguez break down? |
-| [03 — Effect Sizes](notebooks/03_prediction_model.ipynb) | Which metrics most separate stars from busts? |
-| [04 — Prescriptions](notebooks/04_prescriptions.ipynb) | What specific changes would improve their outlook? |
-| [05 — Prevention](notebooks/05_prevention_analysis.ipynb) | Monthly trends, pitch mix exploitation, readiness gates |
-| [06 — MiLB vs MLB](notebooks/06_milb_vs_mlb.ipynb) | The discipline was real — MLB broke it |
-| [07 — Systemic Analysis](notebooks/07_yankees_systemic.ipynb) | Org-level pipeline comparison: NYY vs BAL, CLE, LAD, TB, ATL |
-| [08 — Fishman's Bad Takes](notebooks/08_fishman_case_studies.ipynb) | Baserunning, defense, HR dependency, 2022 paradox, extremes trap |
-| [09 — Dawg Metric Deep Dive](notebooks/09_dawg_metric.ipynb) | Independence test, regression, year-ahead prediction, playoff model |
-| [10 — Rice: The Counter-Example](notebooks/10_rice_comparison.ipynb) | Ben Rice vs Volpe/Dominguez/Peraza — what success looks like |
-| [11 — Roster Balance Analysis](notebooks/11_role_player_profile.ipynb) | How contenders build roster depth vs the Yankees' extreme-only approach |
-
-## Data
-
-All data sourced from public [Statcast](https://baseballsavant.mlb.com) via [pybaseball](https://github.com/jldbc/pybaseball) and [FanGraphs API](https://fangraphs.com).
-
-| Dataset | Volume | Coverage | Use |
-|---------|--------|----------|-----|
-| Statcast pitch-level | **3M+ pitches** | 2021-2026 | Plate discipline, whiff rates, exit velo, batted ball direction |
-| FanGraphs team batting | **240 team-seasons** | 2017-2024 | BsR, UBR, wSB, lineup handedness, HR dependency |
-| FanGraphs team fielding | **240 team-seasons** | 2017-2024 | OAA, DRS, UZR, Def |
-| FanGraphs player batting | **2,500+ player-seasons** | 2021-2025 | Barrel%, K%, BB%, wOBA, wRC+, hitter archetype classification |
-| Dawg metric regression | **216 team-seasons** | 2017-2024 | Linear regression, 10-fold CV, playoff prediction |
-| Prospect profiles | **43 prospects, 16 orgs** | 2019-2026 debuts | Tools scores, translation gaps, readiness gates, org-level success rates |
-| MiLB stats | **10 prospect careers** | 2021-2024 | BB%, K%, wOBA, wRC+ by level for pre-/post-debut comparison |
-| Pre-debut Statcast | **343 pitches** | Spring Training / MiLB | Pitch recognition calibration baseline |
-
-## Setup
+## Reproducibility
 
 ```bash
 git clone https://github.com/regimeiq/fire_fishman.git
 cd fire_fishman
 pip install -e .
 
-# Pull data (~5 min per season, cached as parquet after first run)
 python -c "
 from fire_fishman.data.statcast import get_statcast_pitches, get_batting_stats
 for year in range(2021, 2027):
@@ -133,36 +93,24 @@ for year in range(2021, 2027):
     get_batting_stats(year)
 "
 
-jupyter notebook notebooks/
+pytest -q
 ```
 
-## Methods
-
-| Method | Application | Why |
-|--------|-------------|-----|
-| **Linear + Bayesian regression** (sklearn, Bambi/PyMC) | Dawg metric → WAR relationship | Frequentist with 10-fold CV; Bayesian via Bambi for posterior credible intervals and WAIC model comparison |
-| **Effect size analysis** (Cohen's d) | Star vs bust separation on small prospect cohort | More honest than ML classifiers at small n |
-| **10-fold cross-validation** | Dawg playoff prediction model | Standard validation; KFold with shuffle for team-season data |
-| **Z-scoring within season** | All Dawg components, tools scores | Controls for year-over-year league-wide shifts |
-| **XGBoost** (sanity check) | Feature importance for prospect translation | LOO-CV, used to confirm effect size rankings |
-| **Statcast-based readiness gates** | Prospect call-up framework | Pitch-type-specific thresholds derived from star 75th percentiles |
-| **Hitter archetype classification** | Roster construction analysis | Multi-dimensional profiling (barrel%, K%, BB%, BsR) |
+The data fetch is cached as parquet after the first run. Some notebooks rely on external APIs and may take several minutes to execute on a fresh machine.
 
 ## Limitations
 
-- **MiLB sample is small** (89-254 pitches from Spring Training). Directionally strong but not definitive.
-- **Prospect cohort is modest (n=43 across 16 orgs)**. Org-level rates for orgs with n < 4 (ATL, LAD, TB) should be treated with caution. Effect sizes are more honest than ML classifiers at this sample size, but findings are suggestive and hypothesis-generating, not proof of causation.
-- **Baserunning estimates are conservative** — BsR captures runs above average, not the full opportunity cost of the philosophy.
-- **Rice is now a validation case, but still a live one.** His 2024 MLB sample was small (~180 PA, 50 games), 2025 was the meaningful full-season breakout, and his 2026 OPS/SLG leadership strengthens the framework. Because the season is ongoing, the final 2026 line should be revisited after the year.
-- **Dominguez and Volpe remain live reads.** Dominguez's May 2026 shoulder injury interrupts the development signal; Volpe's swing-plane changes should be monitored before drawing a new conclusion.
-- **Dawg metric validation is primarily same-year.** The r = +0.30 and R² improvement are in-sample (with 10-fold CV). The year-ahead correlation (r = +0.22) is the true out-of-sample test. The playoff prediction proxy (top-12 WAR teams) is defined from the same data used to build the metric.
+This is an observational analysis using public data. It can identify measurable patterns and missed value, but it cannot fully observe coaching decisions, player health, private tracking data, or internal model outputs. The prospect cohort is modest, some MiLB samples are small, and the team-level composite is primarily descriptive.
 
-## Tech Stack
+See [docs/limitations.md](docs/limitations.md) for the full limitations register.
 
-| | |
-|---|---|
-| **Core** | Python 3.11+, pandas 2.0+, NumPy |
-| **Data** | pybaseball (Statcast + FanGraphs API), parquet caching |
-| **Statistical modeling** | scikit-learn, XGBoost, PyMC, Bambi, ArviZ |
-| **Visualization** | matplotlib, seaborn |
-| **Infrastructure** | Jupyter notebooks, pip-installable package (`src/fire_fishman/`), git |
+## Repository Guide
+
+| Path | Purpose |
+| --- | --- |
+| `src/fire_fishman/` | Reusable feature engineering and data helpers |
+| `notebooks/` | Case-study analyses |
+| `outputs/figures/` | Generated visual outputs |
+| `outputs/summary.md` | Concise findings table |
+| `docs/methodology.md` | Methodology details |
+| `docs/limitations.md` | Limitations and interpretation guidance |

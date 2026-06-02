@@ -1,4 +1,4 @@
-"""fire_fishman: Quantifying systemic failures in Yankees analytics."""
+"""Reusable helpers for the Yankees analytics case study."""
 
 from fire_fishman.data.statcast import (
     get_statcast_pitches,
