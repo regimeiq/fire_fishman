@@ -28,13 +28,17 @@ This project uses **3M+ pitches of Statcast data (2021-2026)**, **FanGraphs team
 6. **The Diamond in the Rough** — A 12th-round pick holds his discipline (21% chase rate) while the "next Mickey Mantle" and a 1st-rounder both collapse at 31% — why did the org's least-hyped prospect succeed where the blue chips failed?
 7. **Roster Construction** — Profiling the archetypes contenders actually build (complete hitters, speed/defense specialists, platoon bats, table-setters) vs the Yankees' extreme-only approach
 
+### 2026 Live Update
+
+The Rice counterexample has become the strongest out-of-sample validation case in the project. As of early June 2026, Ben Rice leads MLB in OPS and slugging, turning the readiness-gate profile from "promising exception" into a live All-Star-level breakout. Dominguez is temporarily paused as an evaluation case after a May 2026 shoulder injury, and Volpe remains a monitoring case after apparent swing-plane changes.
+
 ---
 
 ## Key Findings
 
 ### 1. The Prospect Pipeline ([Notebooks 01-07, 10](notebooks/))
 
-Volpe and Dominguez had elite minor league discipline — both won BA's "Best Strike-Zone Discipline" — then collapsed at the MLB level. Chase rates doubled for both. Meanwhile, Rice (12th-round pick, 14.8% MiLB BB rate) held his chase rate at 23% and broke out in 2025. The pattern suggests a systemic development issue, not individual talent failures. Across a prospect cohort, the metrics that separate stars from busts are pitch-type-specific (offspeed chase, fastball whiff) — not aggregate whiff or zone contact.
+Volpe and Dominguez had elite minor league discipline — both won BA's "Best Strike-Zone Discipline" — then collapsed at the MLB level. Chase rates doubled for both. Meanwhile, Rice (12th-round pick, 14.8% MiLB BB rate) held his chase rate at 23%, broke out in 2025, and followed with an All-Star-level 2026 start. The pattern suggests a systemic development issue, not individual talent failures. Across a prospect cohort, the metrics that separate stars from busts are pitch-type-specific (offspeed chase, fastball whiff) — not aggregate whiff or zone contact.
 
 **Org-level comparison (43 prospects, 2019-2024 debuts):** Baltimore converts at 100% (5/5 star or solid), Cleveland at 60% (3/5), while the Yankees sit at 33% (2/6) — tied for worst among target orgs. The orgs with fewer resources are systematically outperforming the Yankees at translating minor league talent to MLB production.
 
@@ -56,7 +60,7 @@ Gallo (37.7% K, 84 wRC+) and IKF (1.0% barrel, 84 wRC+) — opposite extremes, s
 
 ### 6. The Diamond in the Rough ([Notebook 10](notebooks/10_rice_comparison.ipynb))
 
-Rice (chase 23.4%, barrel 15.4%) vs Volpe (chase 29.5%, barrel 10.5%) vs Dominguez (chase 33.1%, barrel 7.0%). Same org, same park — wildly different outcomes. Rice passes 5/5 readiness gates; Dominguez passes 2/5. The prospects they invested the most in collapsed; the lower-profile guy figured it out.
+Rice (chase 23.4%, barrel 15.4%) vs Volpe (chase 29.5%, barrel 10.5%) vs Dominguez (chase 33.1%, barrel 7.0%). Same org, same park — wildly different outcomes. Rice passes 5/5 readiness gates; Dominguez passes 2/5. The lower-profile guy figured it out first, and his 2026 OPS/SLG leadership turns the notebook's counterexample into live validation of the framework. Dominguez should be re-evaluated after his shoulder injury; Volpe should be tracked for whether the flatter swing translates into sustained contact quality.
 
 ### 7. Roster Construction ([Notebook 11](notebooks/11_role_player_profile.ipynb))
 
@@ -79,7 +83,7 @@ Contenders carry distinct archetypes (stars, complete hitters, speed/defense spe
 
 That doesn't include the prospect development failures, the October collapses, or the opportunity cost of building a one-dimensional roster.
 
-The fix was always available — the 2022 team proved it, and Ben Rice proved it again in 2025. The talent was never the problem.
+The fix was always available — the 2022 team proved it, Ben Rice proved it in 2025, and his 2026 start strengthened the case. The talent was never the problem.
 
 ---
 
@@ -149,7 +153,8 @@ jupyter notebook notebooks/
 - **MiLB sample is small** (89-254 pitches from Spring Training). Directionally strong but not definitive.
 - **Prospect cohort is modest (n=43 across 16 orgs)**. Org-level rates for orgs with n < 4 (ATL, LAD, TB) should be treated with caution. Effect sizes are more honest than ML classifiers at this sample size, but findings are suggestive and hypothesis-generating, not proof of causation.
 - **Baserunning estimates are conservative** — BsR captures runs above average, not the full opportunity cost of the philosophy.
-- **Rice's 2024 MLB sample is small** (~180 PA, 50 games). The 2025 full season (530 PA) is the meaningful data point.
+- **Rice is now a validation case, but still a live one.** His 2024 MLB sample was small (~180 PA, 50 games), 2025 was the meaningful full-season breakout, and his 2026 OPS/SLG leadership strengthens the framework. Because the season is ongoing, the final 2026 line should be revisited after the year.
+- **Dominguez and Volpe remain live reads.** Dominguez's May 2026 shoulder injury interrupts the development signal; Volpe's swing-plane changes should be monitored before drawing a new conclusion.
 - **Dawg metric validation is primarily same-year.** The r = +0.30 and R² improvement are in-sample (with 10-fold CV). The year-ahead correlation (r = +0.22) is the true out-of-sample test. The playoff prediction proxy (top-12 WAR teams) is defined from the same data used to build the metric.
 
 ## Tech Stack
