@@ -1,6 +1,6 @@
-# fire_fishman
+# Yankees Analytics Audit
 
-> *Yes, the name is tongue-in-cheek — it's what every Yankees fan has been yelling since 2020. The analysis is not — every claim is sourced from public data and reproducible end-to-end.*
+> *Project nickname: `fire_fishman`. The repo name is tongue-in-cheek; the analysis is not. Every claim is sourced from public data and reproducible end-to-end.*
 
 ## Quantifying Systemic Failures in Yankees Analytics (2017-2024)
 **Prospect Development, Roster Construction, and an Original Composite Metric for Intangible Contributions**
