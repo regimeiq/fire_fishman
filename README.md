@@ -6,6 +6,8 @@ This repository is a public-data case study of Yankees roster construction and p
 
 The project is intentionally framed as an analytical audit: it evaluates decisions, outcomes, and uncertainty using reproducible code and public data. It is not a claim of causality, and it does not require agreement with every baseball interpretation to inspect the workflow.
 
+Portfolio page: https://wksprojects.com/baseball-analytics-case-study/
+
 ## Question Studied
 
 How well did Yankees player development and roster construction translate measurable inputs into MLB value?
