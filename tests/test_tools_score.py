@@ -14,14 +14,27 @@ from fire_fishman.features.tools_score import (
 
 
 def _make_batted_balls(n=200, batter_id=12345, seed=42):
-    """Create synthetic batted ball data."""
+    """Create synthetic pitch data: n in-play batted balls plus n//2 fouls.
+
+    Mirrors the raw Statcast feed, where foul balls (type "S") also carry
+    launch_speed readings — they must be excluded from batted-ball metrics.
+    """
     rng = np.random.RandomState(seed)
-    return pd.DataFrame({
+    in_play = pd.DataFrame({
         "batter": batter_id,
+        "type": "X",
         "launch_speed": rng.uniform(70, 115, size=n),
         "launch_angle": rng.uniform(-20, 60, size=n),
-        "barrel": rng.choice([0, 1], size=n, p=[0.92, 0.08]),
+        "launch_speed_angle": rng.choice([2, 3, 4, 5, 6], size=n, p=[0.3, 0.25, 0.25, 0.12, 0.08]),
     })
+    fouls = pd.DataFrame({
+        "batter": batter_id,
+        "type": "S",
+        "launch_speed": rng.uniform(40, 85, size=n // 2),
+        "launch_angle": rng.uniform(-70, 80, size=n // 2),
+        "launch_speed_angle": np.nan,
+    })
+    return pd.concat([in_play, fouls], ignore_index=True)
 
 
 class TestComputeExitVeloMetrics:
@@ -42,6 +55,14 @@ class TestComputeExitVeloMetrics:
         result = compute_exit_velo_metrics(df, 12345)
         assert result["max_exit_velo"] >= result["ev90"]
 
+    def test_excludes_fouls_from_average(self):
+        df = _make_batted_balls(n=500)
+        in_play = df[df["type"] == "X"]
+        result = compute_exit_velo_metrics(df, 12345)
+        assert result["avg_exit_velo"] == pytest.approx(in_play["launch_speed"].mean())
+        # Including the (softer) fouls would drag the average down
+        assert result["avg_exit_velo"] > df["launch_speed"].mean()
+
     def test_empty_batter_returns_nans(self):
         df = _make_batted_balls()
         result = compute_exit_velo_metrics(df, 99999)
@@ -50,6 +71,7 @@ class TestComputeExitVeloMetrics:
     def test_all_nan_launch_speed(self):
         df = pd.DataFrame({
             "batter": [12345] * 5,
+            "type": ["X"] * 5,
             "launch_speed": [np.nan] * 5,
         })
         result = compute_exit_velo_metrics(df, 12345)
@@ -72,25 +94,39 @@ class TestComputeBarrelRate:
         result = compute_barrel_rate(df, 99999)
         assert np.isnan(result)
 
-    def test_uses_native_barrel_column(self):
+    def test_uses_launch_speed_angle_classification(self):
+        # Statcast codes barrels as launch_speed_angle == 6
         df = pd.DataFrame({
             "batter": [12345] * 10,
-            "launch_speed": [100.0] * 10,
-            "launch_angle": [28.0] * 10,
-            "barrel": [1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+            "type": ["X"] * 10,
+            "launch_speed": [80.0] * 10,
+            "launch_angle": [10.0] * 10,
+            "launch_speed_angle": [6, 6, 3, 3, 3, 2, 2, 2, 4, 4],
         })
         result = compute_barrel_rate(df, 12345)
         assert result == pytest.approx(0.2)
 
-    def test_fallback_without_barrel_column(self):
+    def test_fallback_without_launch_speed_angle_column(self):
         df = pd.DataFrame({
             "batter": [12345] * 10,
+            "type": ["X"] * 10,
             "launch_speed": [100.0] * 10,
             "launch_angle": [28.0] * 10,
         })
         result = compute_barrel_rate(df, 12345)
         # All meet barrel criteria: EV=100, LA=28 is within range
         assert result == 1.0
+
+    def test_fouls_excluded_from_denominator(self):
+        df = pd.DataFrame({
+            "batter": [12345] * 4,
+            "type": ["X", "X", "S", "S"],
+            "launch_speed": [100.0, 100.0, 100.0, 100.0],
+            "launch_angle": [28.0, 28.0, 28.0, 28.0],
+            "launch_speed_angle": [6, 3, np.nan, np.nan],
+        })
+        result = compute_barrel_rate(df, 12345)
+        assert result == pytest.approx(0.5)
 
 
 class TestComputeHardHitRate:
@@ -102,6 +138,7 @@ class TestComputeHardHitRate:
     def test_all_hard_hit(self):
         df = pd.DataFrame({
             "batter": [12345] * 5,
+            "type": ["X"] * 5,
             "launch_speed": [100.0] * 5,
         })
         assert compute_hard_hit_rate(df, 12345) == 1.0
@@ -109,9 +146,18 @@ class TestComputeHardHitRate:
     def test_none_hard_hit(self):
         df = pd.DataFrame({
             "batter": [12345] * 5,
+            "type": ["X"] * 5,
             "launch_speed": [80.0] * 5,
         })
         assert compute_hard_hit_rate(df, 12345) == 0.0
+
+    def test_hard_hit_fouls_excluded(self):
+        df = pd.DataFrame({
+            "batter": [12345] * 4,
+            "type": ["X", "X", "S", "S"],
+            "launch_speed": [100.0, 80.0, 100.0, 100.0],
+        })
+        assert compute_hard_hit_rate(df, 12345) == pytest.approx(0.5)
 
 
 class TestComputeToolsScore:
@@ -143,9 +189,10 @@ class TestComputeToolsForCohort:
             for _ in range(50):
                 rows.append({
                     "batter": bid,
+                    "type": "X",
                     "launch_speed": rng.uniform(80, 110),
                     "launch_angle": rng.uniform(-10, 50),
-                    "barrel": rng.choice([0, 1], p=[0.9, 0.1]),
+                    "launch_speed_angle": rng.choice([2, 3, 4, 5, 6]),
                 })
         df = pd.DataFrame(rows)
         result = compute_tools_for_cohort(df, ids)
@@ -160,9 +207,10 @@ class TestComputeToolsForCohort:
             for _ in range(100):
                 rows.append({
                     "batter": bid,
+                    "type": "X",
                     "launch_speed": rng.uniform(80, 110),
                     "launch_angle": rng.uniform(-10, 50),
-                    "barrel": rng.choice([0, 1], p=[0.9, 0.1]),
+                    "launch_speed_angle": rng.choice([2, 3, 4, 5, 6]),
                 })
         df = pd.DataFrame(rows)
         result = compute_tools_for_cohort(df, ids)
@@ -177,9 +225,10 @@ class TestComputeToolsForCohort:
             for _ in range(50):
                 rows.append({
                     "batter": bid,
+                    "type": "X",
                     "launch_speed": 95.0,
                     "launch_angle": 25.0,
-                    "barrel": 0,
+                    "launch_speed_angle": 4,
                 })
         df = pd.DataFrame(rows)
         result = compute_tools_for_cohort(df, ids)

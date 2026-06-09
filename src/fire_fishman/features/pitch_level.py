@@ -171,9 +171,12 @@ def compute_velo_tier_performance(pitches: pd.DataFrame, batter_id: int) -> dict
         results[f"whiff_rate_{tier}"] = (
             tier_swings["is_whiff"].mean() if len(tier_swings) > 0 else np.nan
         )
-        # Also compute xwOBA proxy: contact quality when they do hit it
+        # Also compute a contact-quality proxy: avg EV on in-play batted balls.
+        # Fouls carry launch_speed readings too and must be excluded.
         tier_contact = bp[
-            (bp["velo_tier"] == tier) & bp["launch_speed"].notna()
+            (bp["velo_tier"] == tier)
+            & (bp["type"] == "X")
+            & bp["launch_speed"].notna()
         ]
         results[f"avg_ev_{tier}"] = (
             tier_contact["launch_speed"].mean() if len(tier_contact) > 0 else np.nan
@@ -272,7 +275,7 @@ def compute_pitch_features_for_cohort(
         .reindex(index=index, columns=tiers)
     )
     ev_by_tier = (
-        velo_bp.loc[velo_bp["launch_speed"].notna()]
+        velo_bp.loc[(velo_bp["type"] == "X") & velo_bp["launch_speed"].notna()]
         .groupby(["batter", "velo_tier"], observed=False)["launch_speed"]
         .mean()
         .unstack()

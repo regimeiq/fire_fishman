@@ -116,17 +116,29 @@ def _make_pitches(n=100, batter_id=12345, seed=42):
     pitch_types = rng.choice(["FF", "SL", "CH", "CU", "SI"], size=n)
     plate_x = rng.uniform(-1.5, 1.5, size=n)
     plate_z = rng.uniform(0.5, 4.5, size=n)
+    # Statcast type code: X = in play, B = ball, S = strike (incl. fouls).
+    # Launch readings exist on fouls too, so avg-EV metrics must filter type.
+    types = np.select(
+        [descriptions == "hit_into_play", descriptions == "ball"],
+        ["X", "B"],
+        default="S",
+    )
 
     return pd.DataFrame({
         "batter": batter_id,
         "description": descriptions,
         "pitch_type": pitch_types,
+        "type": types,
         "plate_x": plate_x,
         "plate_z": plate_z,
         "sz_top": 3.5,
         "sz_bot": 1.5,
         "release_speed": rng.uniform(85, 100, size=n),
-        "launch_speed": rng.choice([np.nan, 90, 95, 100, 105], size=n),
+        "launch_speed": np.where(
+            np.isin(descriptions, ["hit_into_play", "foul"]),
+            rng.choice([90, 95, 100, 105], size=n),
+            np.nan,
+        ),
         "balls": rng.randint(0, 4, size=n),
         "strikes": rng.randint(0, 3, size=n),
         "game_date": "2024-06-15",

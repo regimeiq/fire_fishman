@@ -5,65 +5,75 @@ exit velocity, bat speed, barrel rate, sprint speed.
 
 These are the metrics that make scouts drool but don't always
 translate to MLB production.
+
+All batted-ball metrics are computed over in-play balls (Statcast
+``type == "X"``). The raw Statcast feed also records ``launch_speed`` on
+roughly half of foul balls; including fouls drags average exit velocity
+down by ~5 mph and roughly halves hard-hit rate.
 """
 
 import numpy as np
 import pandas as pd
 
 
-def compute_exit_velo_metrics(pitches: pd.DataFrame, batter_id: int) -> dict:
-    """Compute exit velocity metrics for a batter from pitch-level data."""
-    batter_pitches = pitches[
-        (pitches["batter"] == batter_id) & pitches["launch_speed"].notna()
+def _batted_balls(pitches: pd.DataFrame, batter_id: int) -> pd.DataFrame:
+    """In-play batted balls with a tracked exit velocity for one batter."""
+    return pitches[
+        (pitches["batter"] == batter_id)
+        & (pitches["type"] == "X")
+        & pitches["launch_speed"].notna()
     ]
 
-    if len(batter_pitches) == 0:
+
+def compute_exit_velo_metrics(pitches: pd.DataFrame, batter_id: int) -> dict:
+    """Compute exit velocity metrics for a batter from in-play batted balls."""
+    bbe = _batted_balls(pitches, batter_id)
+
+    if len(bbe) == 0:
         return {"avg_exit_velo": np.nan, "ev90": np.nan, "max_exit_velo": np.nan}
 
     return {
-        "avg_exit_velo": batter_pitches["launch_speed"].mean(),
-        "ev90": batter_pitches["launch_speed"].quantile(0.90),
-        "max_exit_velo": batter_pitches["launch_speed"].max(),
+        "avg_exit_velo": bbe["launch_speed"].mean(),
+        "ev90": bbe["launch_speed"].quantile(0.90),
+        "max_exit_velo": bbe["launch_speed"].max(),
     }
 
 
-def compute_barrel_rate(pitches: pd.DataFrame, batter_id: int) -> float:
-    """Barrel rate = barrels / batted ball events.
+def _is_barrel(bbe: pd.DataFrame) -> pd.Series:
+    """Boolean barrel flag for in-play batted balls.
 
-    Uses Statcast's native barrel classification when available,
-    falls back to an approximation otherwise.
+    Uses Statcast's ``launch_speed_angle`` classification (6 = barrel) when
+    available. The raw ``statcast()`` feed has no ``barrel`` column, so the
+    fallback approximates the Statcast barrel definition from exit velocity
+    and launch angle.
     """
-    bbe = pitches[
-        (pitches["batter"] == batter_id)
-        & pitches["launch_speed"].notna()
-        & pitches["launch_angle"].notna()
-    ]
-    if len(bbe) == 0:
-        return np.nan
+    if "launch_speed_angle" in bbe.columns and bbe["launch_speed_angle"].notna().any():
+        return bbe["launch_speed_angle"] == 6
 
-    # Prefer Statcast's own barrel flag if present
-    if "barrel" in bbe.columns:
-        return bbe["barrel"].fillna(0).astype(bool).mean()
-
-    # Fallback: approximation of Statcast barrel definition
-    barrels = bbe[
+    return (
         (bbe["launch_speed"] >= 98)
         & (bbe["launch_angle"] >= 26 - (bbe["launch_speed"] - 98) * 0.5)
         & (bbe["launch_angle"] <= 30 + (bbe["launch_speed"] - 98) * 0.5)
         & (bbe["launch_angle"] >= 8)
         & (bbe["launch_angle"] <= 50)
-    ]
-    return len(barrels) / len(bbe)
+    )
+
+
+def compute_barrel_rate(pitches: pd.DataFrame, batter_id: int) -> float:
+    """Barrel rate = barrels / in-play batted ball events."""
+    bbe = _batted_balls(pitches, batter_id)
+    bbe = bbe[bbe["launch_angle"].notna()]
+    if len(bbe) == 0:
+        return np.nan
+    return float(_is_barrel(bbe).mean())
 
 
 def compute_hard_hit_rate(pitches: pd.DataFrame, batter_id: int) -> float:
-    """Hard hit rate = batted balls >= 95 mph / total batted balls."""
-    bbe = pitches[
-        (pitches["batter"] == batter_id) & pitches["launch_speed"].notna()
-    ]
+    """Hard hit rate = in-play batted balls >= 95 mph / total in-play batted balls."""
+    bbe = _batted_balls(pitches, batter_id)
     if len(bbe) == 0:
         return np.nan
-    return (bbe["launch_speed"] >= 95).mean()
+    return float((bbe["launch_speed"] >= 95).mean())
 
 
 def compute_tools_score(pitches: pd.DataFrame, batter_id: int) -> dict:
@@ -91,7 +101,9 @@ def compute_tools_for_cohort(pitches: pd.DataFrame, batter_ids: list[int]) -> pd
     """
     index = pd.Index(batter_ids, name="batter_id")
     bbe = pitches[
-        pitches["batter"].isin(batter_ids) & pitches["launch_speed"].notna()
+        pitches["batter"].isin(batter_ids)
+        & (pitches["type"] == "X")
+        & pitches["launch_speed"].notna()
     ].copy()
 
     df = pd.DataFrame(index=index)
@@ -108,22 +120,11 @@ def compute_tools_for_cohort(pitches: pd.DataFrame, batter_ids: list[int]) -> pd
         )
 
         barrel_bbe = bbe[bbe["launch_angle"].notna()].copy()
-        if "barrel" in barrel_bbe.columns:
-            barrel_rate = barrel_bbe.assign(
-                is_barrel=barrel_bbe["barrel"].fillna(0).astype(bool)
-            ).groupby("batter")["is_barrel"].mean()
-        else:
-            barrel_angle_min = 26 - (barrel_bbe["launch_speed"] - 98) * 0.5
-            barrel_angle_max = 30 + (barrel_bbe["launch_speed"] - 98) * 0.5
-            barrel_rate = barrel_bbe.assign(
-                is_barrel=(
-                    (barrel_bbe["launch_speed"] >= 98)
-                    & (barrel_bbe["launch_angle"] >= barrel_angle_min)
-                    & (barrel_bbe["launch_angle"] <= barrel_angle_max)
-                    & (barrel_bbe["launch_angle"] >= 8)
-                    & (barrel_bbe["launch_angle"] <= 50)
-                )
-            ).groupby("batter")["is_barrel"].mean()
+        barrel_rate = (
+            barrel_bbe.assign(is_barrel=_is_barrel(barrel_bbe))
+            .groupby("batter")["is_barrel"]
+            .mean()
+        )
         df["barrel_rate"] = barrel_rate.reindex(index)
     else:
         df[["avg_exit_velo", "ev90", "max_exit_velo", "barrel_rate", "hard_hit_rate"]] = np.nan
