@@ -116,6 +116,51 @@ def get_team_batting_stats(season: int, force: bool = False) -> pd.DataFrame:
     return df
 
 
+def get_team_fielding_stats(season: int, force: bool = False) -> pd.DataFrame:
+    """Fetch team-level fielding stats from FanGraphs.
+
+    Includes OAA, DRS, UZR, and Def. Note that FanGraphs labels teams by
+    nickname here (``"Yankees"``), unlike the abbreviations in
+    :func:`get_team_batting_stats` (``"NYY"``) — see
+    ``fire_fishman.features.team_value.FG_TEAM_NAME_TO_ABBR`` for the merge map.
+
+    Uses the modern FanGraphs leaders JSON API directly because the legacy
+    ``leaders-legacy.aspx`` endpoint that ``pybaseball.team_fielding`` scrapes
+    now returns 403.
+    """
+    cache_path = CACHE_DIR / f"team_fielding_{season}.parquet"
+
+    if cache_path.exists() and not force:
+        return pd.read_parquet(cache_path)
+
+    import requests
+
+    print(f"Pulling FanGraphs team fielding stats for {season}...")
+    response = requests.get(
+        "https://www.fangraphs.com/api/leaders/major-league/data",
+        params={
+            "age": "", "pos": "all", "stats": "fld", "lg": "all", "qual": "0",
+            "season": str(season), "season1": str(season), "startdate": "",
+            "enddate": "", "month": "0", "hand": "", "team": "0,ts",
+            "pageitems": "500", "pagenum": "1", "ind": "0", "rost": "0",
+            "players": "0", "type": "1", "postseason": "",
+            "sortdir": "default", "sortstat": "Defense",
+        },
+        headers={
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+        },
+        timeout=30,
+    )
+    response.raise_for_status()
+    df = pd.DataFrame(response.json()["data"])
+    # Match the column naming of pybaseball.team_fielding: nickname in
+    # "Team" ("Yankees") and FanGraphs "Def" for the defensive runs total.
+    df = df.drop(columns=["Team"]).rename(columns={"TeamName": "Team", "Defense": "Def"})
+    df.to_parquet(cache_path, index=False)
+    print(f"Cached {len(df)} teams to {cache_path}")
+    return df
+
+
 def get_player_id(name: str) -> int:
     """Look up a player's MLBAM ID by name."""
     _enable_pybaseball_cache()
