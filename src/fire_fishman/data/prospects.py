@@ -1,6 +1,6 @@
 """Top prospect data: player IDs, rankings, and call-up dates.
 
-Manually curated list of top-100 prospects who debuted 2019-2024,
+Manually curated list of top-100 prospects who debuted 2019-2025,
 with their MLBAM IDs for Statcast lookups.
 
 Sources: Baseball America, FanGraphs, MLB Pipeline rankings.
@@ -9,7 +9,7 @@ Sources: Baseball America, FanGraphs, MLB Pipeline rankings.
 import pandas as pd
 
 # fmt: off
-# Top prospects who debuted 2019-2024 with meaningful MLB time
+# Top prospects who debuted 2019-2025 with meaningful MLB time
 # Columns: name, mlbam_id, debut_year, pre_debut_rank, outcome, org
 # "outcome": rough classification based on first 2 MLB seasons
 #   - "star": >= .340 wOBA in years 1-2
@@ -63,7 +63,7 @@ PROSPECT_DATA = [
     ("CJ Abrams",          682928, 2022, 8,  "solid",         "SD"),
     ("Elly De La Cruz",    682829, 2023, 3,  "star",          "CIN"),
     ("Jackson Chourio",    694192, 2024, 1,  "solid",         "MIL"),
-    ("Marcelo Mayer",      691606, 2024, 3,  "solid",         "BOS"),
+    ("Marcelo Mayer",      691785, 2025, 3,  "solid",         "BOS"),
     ("Spencer Torkelson",   669060, 2022, 3,  "disappointing", "DET"),
     ("Jordyn Adams",        677941, 2023, 50, "bust",          "LAA"),
     ("Josh Jung",           673962, 2022, 8,  "solid",         "TEX"),
