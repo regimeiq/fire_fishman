@@ -18,42 +18,6 @@ PULL_THRESHOLD_LF = 90    # hc_x < this = left field (RHH pull zone)
 SHORT_PORCH_MAX_DISTANCE = 370  # ft — anything shorter than this in RF is "short porch" territory
 
 
-def classify_hit_direction(hc_x: float, stand: str) -> str:
-    """Classify a batted ball as pull, center, or oppo.
-
-    Parameters
-    ----------
-    hc_x : float
-        Statcast horizontal hit coordinate (~125 = center field).
-    stand : str
-        Batter handedness: 'L', 'R', or 'S'.
-
-    Returns
-    -------
-    str
-        'pull', 'center', or 'oppo'.
-    """
-    if pd.isna(hc_x):
-        return np.nan
-
-    if stand == "L":
-        # LHH pull = right field (high hc_x)
-        if hc_x > PULL_THRESHOLD_RF:
-            return "pull"
-        elif hc_x < PULL_THRESHOLD_LF:
-            return "oppo"
-        else:
-            return "center"
-    else:
-        # RHH (and switch) pull = left field (low hc_x)
-        if hc_x < PULL_THRESHOLD_LF:
-            return "pull"
-        elif hc_x > PULL_THRESHOLD_RF:
-            return "oppo"
-        else:
-            return "center"
-
-
 def classify_hit_directions(df: pd.DataFrame) -> pd.Series:
     """Vectorized hit direction classification for a DataFrame.
 
@@ -116,34 +80,3 @@ def compute_yankee_stadium_hr_splits(pitches: pd.DataFrame) -> pd.DataFrame:
     total_hrs = splits["hr_count"].sum()
     splits["pct_of_total"] = splits["hr_count"] / total_hrs if total_hrs > 0 else np.nan
     return splits
-
-
-def compute_park_hr_factor_by_hand(
-    pitches: pd.DataFrame, team: str
-) -> dict:
-    """Compare HR rate for LHH vs RHH at a specific park vs league average.
-
-    Excludes the target park from the league baseline to avoid diluting
-    the park factor toward 1.0.
-
-    Returns dict with LHH and RHH park factors (1.0 = neutral).
-    """
-    bbe = pitches[pitches["events"].notna()].copy()
-
-    factors = {}
-    for hand in ["L", "R"]:
-        hand_bbe = bbe[bbe["stand"] == hand]
-        park_bbe = hand_bbe[hand_bbe["home_team"] == team]
-        league_bbe = hand_bbe[hand_bbe["home_team"] != team]
-
-        park_hr_rate = (park_bbe["events"] == "home_run").mean()
-        league_hr_rate = (league_bbe["events"] == "home_run").mean()
-
-        label = "LHH_park_factor" if hand == "L" else "RHH_park_factor"
-        factors[label] = (
-            park_hr_rate / league_hr_rate
-            if pd.notna(park_hr_rate) and pd.notna(league_hr_rate) and league_hr_rate > 0
-            else 1.0
-        )
-
-    return factors

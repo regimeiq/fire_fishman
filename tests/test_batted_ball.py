@@ -1,4 +1,4 @@
-"""Tests for batted ball direction classification and park factor analysis."""
+"""Tests for batted ball direction classification."""
 
 import numpy as np
 import pandas as pd
@@ -6,48 +6,38 @@ import pandas as pd
 from fire_fishman.features.batted_ball import (
     PULL_THRESHOLD_RF,
     PULL_THRESHOLD_LF,
-    classify_hit_direction,
     classify_hit_directions,
     is_short_porch_hr,
     compute_yankee_stadium_hr_splits,
-    compute_park_hr_factor_by_hand,
 )
 
 
-class TestClassifyHitDirection:
-    def test_lhh_pull_to_right_field(self):
-        assert classify_hit_direction(170, "L") == "pull"
+class TestClassifyHitDirections:
+    def _classify(self, hc_x, stand):
+        return classify_hit_directions(pd.DataFrame({"hc_x": [hc_x], "stand": [stand]})).iloc[0]
 
-    def test_lhh_oppo_to_left_field(self):
-        assert classify_hit_direction(80, "L") == "oppo"
+    def test_lhh_directions(self):
+        assert self._classify(170, "L") == "pull"
+        assert self._classify(80, "L") == "oppo"
+        assert self._classify(125, "L") == "center"
 
-    def test_lhh_center(self):
-        assert classify_hit_direction(125, "L") == "center"
-
-    def test_rhh_pull_to_left_field(self):
-        assert classify_hit_direction(80, "R") == "pull"
-
-    def test_rhh_oppo_to_right_field(self):
-        assert classify_hit_direction(170, "R") == "oppo"
-
-    def test_rhh_center(self):
-        assert classify_hit_direction(125, "R") == "center"
+    def test_rhh_directions(self):
+        assert self._classify(80, "R") == "pull"
+        assert self._classify(170, "R") == "oppo"
+        assert self._classify(125, "R") == "center"
 
     def test_switch_hitter_treated_as_rhh(self):
-        assert classify_hit_direction(80, "S") == "pull"
+        assert self._classify(80, "S") == "pull"
 
     def test_nan_returns_nan(self):
-        result = classify_hit_direction(np.nan, "L")
-        assert pd.isna(result)
+        assert pd.isna(self._classify(np.nan, "L"))
 
     def test_boundary_values(self):
         # On the threshold = center (not pull/oppo)
-        assert classify_hit_direction(PULL_THRESHOLD_RF, "L") == "center"
-        assert classify_hit_direction(PULL_THRESHOLD_LF, "L") == "center"
+        assert self._classify(PULL_THRESHOLD_RF, "L") == "center"
+        assert self._classify(PULL_THRESHOLD_LF, "L") == "center"
 
-
-class TestClassifyHitDirections:
-    def test_vectorized_matches_scalar(self):
+    def test_vectorized_over_mixed_frame(self):
         df = pd.DataFrame({
             "hc_x": [170, 80, 125, 80, 170, np.nan],
             "stand": ["L", "L", "L", "R", "R", "L"],
@@ -115,33 +105,3 @@ class TestComputeYankeeStadiumHrSplits:
         assert "hr_count" in result.columns
         assert "pct_of_total" in result.columns
         assert abs(result["pct_of_total"].sum() - 1.0) < 0.01
-
-
-class TestComputeParkHrFactorByHand:
-    def test_neutral_park(self):
-        rng = np.random.RandomState(42)
-        n = 2000
-        teams = rng.choice(["NYY", "BOS", "LAD", "HOU", "CHC"], size=n)
-        events = rng.choice(["home_run", "single", "double", "field_out"], size=n,
-                            p=[0.03, 0.15, 0.05, 0.77])
-        df = pd.DataFrame({
-            "home_team": teams,
-            "events": events,
-            "stand": rng.choice(["L", "R"], size=n),
-        })
-        result = compute_park_hr_factor_by_hand(df, "NYY")
-        # With uniform random data, park factor should be near 1.0
-        assert 0.3 < result["LHH_park_factor"] < 3.0
-        assert 0.3 < result["RHH_park_factor"] < 3.0
-
-    def test_excludes_target_park_from_baseline(self):
-        # All HRs at NYY, none elsewhere — factor should be > 1.0
-        df = pd.DataFrame({
-            "home_team": ["NYY", "NYY", "NYY", "BOS", "BOS", "BOS"],
-            "events": ["home_run", "home_run", "field_out", "field_out", "field_out", "field_out"],
-            "stand": ["L", "L", "L", "L", "L", "L"],
-        })
-        result = compute_park_hr_factor_by_hand(df, "NYY")
-        # NYY: 2/3 HR rate, BOS: 0/3 HR rate — league (excl NYY) has 0 HRs
-        # league_hr_rate = 0, so factor defaults to 1.0
-        assert result["LHH_park_factor"] == 1.0

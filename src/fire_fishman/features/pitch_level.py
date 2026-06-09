@@ -19,14 +19,6 @@ PITCH_GROUPS = {
 }
 
 
-def _classify_pitch(pitch_type: str) -> str:
-    """Map Statcast pitch_type to group."""
-    for group, codes in PITCH_GROUPS.items():
-        if pitch_type in codes:
-            return group
-    return "other"
-
-
 SWING_DESCRIPTIONS = frozenset([
     "swinging_strike", "swinging_strike_blocked",
     "foul", "foul_tip", "foul_bunt",
@@ -34,21 +26,6 @@ SWING_DESCRIPTIONS = frozenset([
 ])
 
 WHIFF_DESCRIPTIONS = frozenset(["swinging_strike", "swinging_strike_blocked"])
-
-
-def _is_swing(description: str) -> bool:
-    """Did the batter swing?"""
-    return description in SWING_DESCRIPTIONS
-
-
-def _is_whiff(description: str) -> bool:
-    """Did the batter swing and miss?"""
-    return description in WHIFF_DESCRIPTIONS
-
-
-def _is_in_zone(plate_x: float, plate_z: float, sz_top: float, sz_bot: float) -> bool:
-    """Is the pitch in the strike zone?"""
-    return (-0.83 <= plate_x <= 0.83) and (sz_bot <= plate_z <= sz_top)
 
 
 def _vectorized_zone_swing_whiff(bp: pd.DataFrame) -> pd.DataFrame:
@@ -67,17 +44,6 @@ def _vectorized_zone_swing_whiff(bp: pd.DataFrame) -> pd.DataFrame:
         {code: group for group, codes in PITCH_GROUPS.items() for code in codes}
     ).fillna("other")
     return bp
-
-
-def _parse_count(balls: int, strikes: int) -> str:
-    """Classify count situation."""
-    if strikes == 2:
-        return "two_strike"
-    if balls >= 2 and strikes <= 1:
-        return "hitter_ahead"
-    if strikes >= 1 and balls == 0:
-        return "pitcher_ahead"
-    return "even"
 
 
 def compute_plate_discipline(pitches: pd.DataFrame, batter_id: int) -> dict:

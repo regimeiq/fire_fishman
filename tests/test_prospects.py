@@ -10,7 +10,6 @@ from fire_fishman.data.prospects import (
     TARGET_ORGS,
     get_prospect_df,
     get_prospect_ids,
-    get_yankees_prospects,
     get_yankees_system_df,
     get_org_prospects,
     get_org_summary,
@@ -69,11 +68,6 @@ class TestGetProspectIds:
 
 
 class TestYankeesProspects:
-    def test_returns_three(self):
-        df = get_yankees_prospects()
-        assert len(df) == 3
-        assert set(df["name"]) == {"Anthony Volpe", "Jasson Dominguez", "Ben Rice"}
-
     def test_system_includes_expanded(self):
         df = get_yankees_system_df()
         assert len(df) >= 5

@@ -5,11 +5,7 @@ import pandas as pd
 import pytest
 
 from fire_fishman.features.pitch_level import (
-    _classify_pitch,
-    _is_swing,
-    _is_whiff,
-    _is_in_zone,
-    _parse_count,
+    _vectorized_zone_swing_whiff,
     compute_all_pitch_features,
     compute_plate_discipline,
     compute_whiff_by_pitch_type,
@@ -18,88 +14,60 @@ from fire_fishman.features.pitch_level import (
 )
 
 
-# --- Unit tests for classification helpers ---
+# --- Unit tests for the vectorized classification helper ---
 
 
-class TestClassifyPitch:
-    def test_fastball_types(self):
-        assert _classify_pitch("FF") == "fastball"
-        assert _classify_pitch("SI") == "fastball"
-        assert _classify_pitch("FC") == "fastball"
+class TestVectorizedZoneSwingWhiff:
+    def _frame(self, **overrides):
+        base = {
+            "description": ["called_strike"],
+            "pitch_type": ["FF"],
+            "plate_x": [0.0],
+            "plate_z": [2.5],
+            "sz_top": [3.5],
+            "sz_bot": [1.5],
+        }
+        base.update(overrides)
+        return pd.DataFrame(base)
 
-    def test_breaking_types(self):
-        assert _classify_pitch("SL") == "breaking"
-        assert _classify_pitch("CU") == "breaking"
-        assert _classify_pitch("SV") == "breaking"
+    def test_swing_and_whiff_classification(self):
+        df = self._frame(
+            description=["swinging_strike", "foul", "hit_into_play", "called_strike", "ball"],
+            pitch_type=["FF"] * 5,
+            plate_x=[0.0] * 5, plate_z=[2.5] * 5, sz_top=[3.5] * 5, sz_bot=[1.5] * 5,
+        )
+        out = _vectorized_zone_swing_whiff(df)
+        assert out["is_swing"].tolist() == [True, True, True, False, False]
+        assert out["is_whiff"].tolist() == [True, False, False, False, False]
 
-    def test_offspeed_types(self):
-        assert _classify_pitch("CH") == "offspeed"
-        assert _classify_pitch("FS") == "offspeed"
+    def test_pitch_group_mapping(self):
+        df = self._frame(
+            description=["ball"] * 6,
+            pitch_type=["FF", "SI", "SL", "CU", "CH", "KN"],
+            plate_x=[0.0] * 6, plate_z=[2.5] * 6, sz_top=[3.5] * 6, sz_bot=[1.5] * 6,
+        )
+        out = _vectorized_zone_swing_whiff(df)
+        assert out["pitch_group"].tolist() == [
+            "fastball", "fastball", "breaking", "breaking", "offspeed", "other"
+        ]
 
-    def test_unknown_returns_other(self):
-        assert _classify_pitch("KN") == "other"
-        assert _classify_pitch("XX") == "other"
+    def test_zone_classification(self):
+        df = self._frame(
+            description=["ball"] * 5,
+            pitch_type=["FF"] * 5,
+            plate_x=[0.0, 1.0, 0.0, 0.0, 0.83],
+            plate_z=[2.5, 2.5, 4.0, 1.0, 2.5],
+            sz_top=[3.5] * 5, sz_bot=[1.5] * 5,
+        )
+        out = _vectorized_zone_swing_whiff(df)
+        # center, outside right, above, below, on the edge (inclusive)
+        assert out["in_zone"].tolist() == [True, False, False, False, True]
 
-
-class TestIsSwing:
-    def test_swing_descriptions(self):
-        assert _is_swing("swinging_strike") is True
-        assert _is_swing("foul") is True
-        assert _is_swing("hit_into_play") is True
-        assert _is_swing("foul_tip") is True
-
-    def test_non_swing_descriptions(self):
-        assert _is_swing("called_strike") is False
-        assert _is_swing("ball") is False
-        assert _is_swing("blocked_ball") is False
-
-
-class TestIsWhiff:
-    def test_whiff_descriptions(self):
-        assert _is_whiff("swinging_strike") is True
-        assert _is_whiff("swinging_strike_blocked") is True
-
-    def test_non_whiff(self):
-        assert _is_whiff("foul") is False
-        assert _is_whiff("hit_into_play") is False
-        assert _is_whiff("called_strike") is False
-
-
-class TestIsInZone:
-    def test_center_of_zone(self):
-        assert _is_in_zone(0.0, 2.5, 3.5, 1.5) is True
-
-    def test_outside_horizontally(self):
-        assert _is_in_zone(1.0, 2.5, 3.5, 1.5) is False  # outside right
-        assert _is_in_zone(-1.0, 2.5, 3.5, 1.5) is False  # outside left
-
-    def test_above_zone(self):
-        assert _is_in_zone(0.0, 4.0, 3.5, 1.5) is False
-
-    def test_below_zone(self):
-        assert _is_in_zone(0.0, 1.0, 3.5, 1.5) is False
-
-    def test_on_edge(self):
-        # Exactly on the boundary should be in zone
-        assert _is_in_zone(0.83, 2.5, 3.5, 1.5) is True
-        assert _is_in_zone(-0.83, 2.5, 3.5, 1.5) is True
-
-
-class TestParseCount:
-    def test_two_strike(self):
-        assert _parse_count(0, 2) == "two_strike"
-        assert _parse_count(3, 2) == "two_strike"
-
-    def test_hitter_ahead(self):
-        assert _parse_count(2, 0) == "hitter_ahead"
-        assert _parse_count(3, 1) == "hitter_ahead"
-
-    def test_pitcher_ahead(self):
-        assert _parse_count(0, 1) == "pitcher_ahead"
-
-    def test_even(self):
-        assert _parse_count(1, 1) == "even"
-        assert _parse_count(0, 0) == "even"
+    def test_unknown_zone_flagged(self):
+        df = self._frame(plate_x=[np.nan])
+        out = _vectorized_zone_swing_whiff(df)
+        assert not out["zone_known"].iloc[0]
+        assert not out["in_zone"].iloc[0]
 
 
 # --- Integration tests with synthetic pitch data ---

@@ -96,12 +96,6 @@ def get_prospect_ids() -> dict[str, int]:
     return {name: mid for name, mid, *_ in PROSPECT_DATA}
 
 
-def get_yankees_prospects() -> pd.DataFrame:
-    """Return just the core Yankees prospects (Volpe, Dominguez, Rice)."""
-    df = get_prospect_df()
-    return df[df["name"].isin(["Anthony Volpe", "Jasson Dominguez", "Ben Rice"])]
-
-
 def get_org_prospects(org: str) -> pd.DataFrame:
     """Return prospects developed by a specific organization."""
     df = get_prospect_df()

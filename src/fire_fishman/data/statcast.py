@@ -159,16 +159,3 @@ def get_team_fielding_stats(season: int, force: bool = False) -> pd.DataFrame:
     df.to_parquet(cache_path, index=False)
     print(f"Cached {len(df)} teams to {cache_path}")
     return df
-
-
-def get_player_id(name: str) -> int:
-    """Look up a player's MLBAM ID by name."""
-    _enable_pybaseball_cache()
-    from pybaseball import playerid_lookup
-
-    last, first = name.split(", ") if ", " in name else (name.split()[-1], name.split()[0])
-    result = playerid_lookup(last, first)
-    if len(result) == 0:
-        raise ValueError(f"No player found for {name}")
-    # Return the most recent player (highest key_mlbam)
-    return int(result.sort_values("key_mlbam", ascending=False).iloc[0]["key_mlbam"])
