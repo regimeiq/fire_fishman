@@ -32,7 +32,7 @@ All data comes from public sources through Python tooling:
 | FanGraphs team batting | 2017-2024 | BsR, UBR, wSB, HR dependency, offensive context |
 | FanGraphs team fielding | 2017-2024 | OAA, DRS, UZR, Def |
 | FanGraphs player batting | 2021-2025 | Barrel%, K%, BB%, wOBA, wRC+, roster archetypes |
-| Curated prospect cohort | 43 prospects, 16 organizations | Translation gaps, readiness gates, org-level comparison |
+| Curated prospect cohort | 43 prospects, 21 organizations | Translation gaps, readiness gates, org-level comparison |
 | MiLB development records | Selected prospect careers | Pre-/post-debut plate discipline context |
 
 ## Methods
@@ -49,18 +49,18 @@ Additional detail: [docs/methodology.md](docs/methodology.md) and [docs/limitati
 
 | Finding | Evidence | Interpretation |
 | --- | --- | --- |
-| Prospect translation issues were pitch-type-specific. | Offspeed chase, breaking-ball chase, and high-velocity whiff rates separated stronger outcomes from weaker ones more clearly than aggregate whiff rate. | Aggregate discipline metrics can hide the exact failure mode. |
-| Ben Rice was the strongest internal counterexample. | Rice held a lower chase-rate profile, passed 5/5 readiness gates in the notebook framework, broke out in 2025, and opened 2026 as an early league OPS/SLG leader. | The framework did not simply label all Yankees prospects as failures; it identified a different readiness profile. |
+| Prospect translation issues were velocity- and pitch-specific. | Whiff rate against 96+ mph velocity separated stronger outcomes from weaker ones most clearly in the cohort, with pitch-type whiff rates next; cohort-level chase-rate differences were small, and the chase-rate collapse appears specifically in the Yankees case studies. | Aggregate discipline metrics can hide the exact failure mode. |
+| Ben Rice was the strongest internal counterexample. | Rice held a lower chase-rate profile and passed 5/5 readiness gates; Volpe and Dominguez each passed 4/5, while Peraza passed 3/5. Rice then broke out in 2025 and had a strong early-2026 public-data sample. | The framework did not simply label all Yankees prospects as failures; it identified a different readiness profile. |
 | Dominguez and Volpe remain live evaluations. | Dominguez's May 2026 shoulder injury interrupts the signal; Volpe's swing-plane adjustment should be monitored before updating the read. | These cases should be treated as ongoing, not closed. |
 | Org-level development outcomes differed materially. | The curated cohort shows Baltimore at 100% successful outcomes (5/5), Cleveland at 60% (3/5), and the Yankees at 33% (2/6) among target organizations. | The sample is modest, but the pattern supports further investigation into development process differences. |
 | Baserunning value declined from a prior strength. | Yankees BsR moved from +7.6 in 2017 to -17.2 in 2024, with a cumulative -39.2 BsR from 2018-2024. | The loss was broader than stolen bases; UBR and extra-base advancement were part of the decline. |
 | Defensive value was available but inconsistently prioritized. | The team was near the bottom of OAA from 2018-2021, then improved sharply in 2022. | Defensive underperformance appears to have been a roster-construction choice rather than a fixed constraint. |
 | Balanced roster profiles mattered. | Contenders tended to carry more complete hitters, while several Yankees rosters leaned toward all-or-nothing power or low-impact contact profiles. | Roster balance is a measurable construction issue, not only a stylistic preference. |
-| The team-level value composite added signal beyond offense. | The pressure/baserunning/defense composite correlated with WAR (same-year r = +0.30; year-ahead r = +0.22) and was tested with linear and Bayesian regression. | The metric is exploratory and should be interpreted as a compact summary of non-offensive value, not a causal model. |
+| The team-level value composite added signal beyond offense. | The pressure/baserunning/defense composite correlated with WAR (same-year r = +0.34; year-ahead r = +0.24) and was tested with linear and Bayesian regression. | The metric is exploratory and should be interpreted as a compact summary of non-offensive value, not a causal model. |
 
 ## 2026 Live Update
 
-As of early June 2026, Ben Rice is the strongest live validation case in the project: his 2025 breakout and early 2026 OPS/SLG leaderboard position align with the readiness-gate profile identified in Notebook 10. Because the 2026 season is ongoing, the final read should be revisited after the year.
+As of the project snapshot in early June 2026, Ben Rice is the strongest live validation case in the project: his 2025 breakout and strong early-2026 offensive sample align with the readiness-gate profile identified in Notebook 10. Because the 2026 season is ongoing, the final read should be revisited after the year.
 
 Dominguez is temporarily paused as an evaluation case after a May 2026 shoulder injury. Volpe remains a monitoring case because any swing-plane adjustment needs a larger sample before changing the underlying conclusion.
 

@@ -6,7 +6,7 @@ This project is an observational baseball analytics case study. It can identify 
 
 ## Prospect Cohort Size
 
-The prospect cohort contains 43 players across 16 organizations. That is enough to describe patterns and generate hypotheses, but not enough to make broad causal claims about entire organizations. Organization-level rates are especially sensitive to small samples.
+The prospect cohort contains 43 players across 21 organizations. That is enough to describe patterns and generate hypotheses, but not enough to make broad causal claims about entire organizations. Organization-level rates are especially sensitive to small samples.
 
 ## Outcome Labels
 
@@ -22,7 +22,7 @@ Injuries, playing-time changes, swing adjustments, and role changes can interrup
 
 ## Ben Rice 2026 Update
 
-Rice's 2025 breakout and early 2026 leaderboard position strengthen the readiness-gate framework, but 2026 remains an in-progress season. Final claims about his 2026 performance should be revisited after the full season.
+Rice's 2025 breakout and strong early-2026 public-data sample strengthen the readiness-gate framework, but 2026 remains an in-progress season. Final claims about his 2026 performance should be revisited after the full season.
 
 ## Team-Level Composite
 

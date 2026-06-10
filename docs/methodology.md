@@ -11,7 +11,7 @@ This project evaluates Yankees player development and roster construction using 
 | Statcast via `pybaseball` | 2021-2026 pitch-level data | Cached locally as parquet after first fetch. |
 | FanGraphs team batting and fielding | 2017-2024 | Used for baserunning, fielding, offensive context, and team-level value metrics. |
 | FanGraphs player batting | 2021-2025 | Used for hitter archetype and roster-balance analysis. |
-| Curated prospect list | 43 prospects across 16 organizations | Includes MLBAM ids, debut year, pre-debut rank, organization, and broad outcome bucket. |
+| Curated prospect list | 43 prospects across 21 organizations | Includes MLBAM ids, debut year, pre-debut rank, organization, and broad outcome bucket. |
 | MiLB public records | Selected player-seasons | Used for pre-debut discipline context. |
 
 ## Feature Engineering

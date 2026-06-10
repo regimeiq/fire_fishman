@@ -66,6 +66,13 @@ class TestGetProspectIds:
         assert "Gunnar Henderson" in ids
         assert "Bobby Witt Jr." in ids
 
+    def test_known_mlbam_ids(self):
+        ids = get_prospect_ids()
+        assert ids["Everson Pereira"] == 677592
+        assert ids["Spencer Torkelson"] == 679529
+        assert ids["Jordan Walker"] == 691023
+        assert ids["Brooks Lee"] == 686797
+
 
 class TestYankeesProspects:
     def test_system_includes_expanded(self):
